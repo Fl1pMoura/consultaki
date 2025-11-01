@@ -1,7 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Activity } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -22,6 +26,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-clients";
 
 const loginSchema = z.object({
   email: z.email({ message: "Email inválido" }),
@@ -29,6 +34,7 @@ const loginSchema = z.object({
 });
 
 const LoginForm = () => {
+  const router = useRouter();
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -37,8 +43,26 @@ const LoginForm = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof loginSchema>) {
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof loginSchema>) {
+    await authClient.signIn.email(
+      {
+        email: values.email,
+        password: values.password,
+      },
+      {
+        onSuccess: () => {
+          router.push("/dashboard");
+        },
+        onError: (error) => {
+          console.log(error.error.code);
+          if (error.error.code === "INVALID_EMAIL_OR_PASSWORD") {
+            toast.error("Email ou senha inválidos");
+          } else {
+            toast.error("Erro ao fazer login");
+          }
+        },
+      },
+    );
   }
   return (
     <Card>
@@ -71,7 +95,11 @@ const LoginForm = () => {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input placeholder="Mínimo 8 caracteres" {...field} />
+                    <Input
+                      type="password"
+                      placeholder="Mínimo 8 caracteres"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -79,8 +107,17 @@ const LoginForm = () => {
             />
           </CardContent>
           <CardFooter>
-            <Button className="w-full cursor-pointer" type="submit">
-              Entrar
+            <Button
+              className="w-full cursor-pointer"
+              type="submit"
+              disabled={form.formState.isSubmitting}
+            >
+              <Activity
+                mode={form.formState.isSubmitting ? "visible" : "hidden"}
+              >
+                <Loader2 className="h-5 w-5 animate-spin" />
+              </Activity>
+              {!form.formState.isSubmitting && "Entrar"}
             </Button>
           </CardFooter>
         </form>

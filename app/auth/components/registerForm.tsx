@@ -1,7 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Activity } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -22,6 +26,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-clients";
 
 const registerSchema = z
   .object({
@@ -44,6 +49,7 @@ const registerSchema = z
   });
 
 const RegisterForm = () => {
+  const router = useRouter();
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -54,8 +60,27 @@ const RegisterForm = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof registerSchema>) {
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof registerSchema>) {
+    await authClient.signUp.email(
+      {
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      },
+      {
+        onSuccess: () => {
+          router.push("/dashboard");
+        },
+        onError: (error) => {
+          console.log(error.error.code);
+          if (error.error.code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL") {
+            toast.error("Email já cadastrado");
+          } else {
+            toast.error("Erro ao fazer login");
+          }
+        },
+      },
+    );
   }
   return (
     <Card>
@@ -102,7 +127,11 @@ const RegisterForm = () => {
                 <FormItem>
                   <FormLabel>Senha</FormLabel>
                   <FormControl>
-                    <Input placeholder="Mínimo 8 caracteres" {...field} />
+                    <Input
+                      type="password"
+                      placeholder="Mínimo 8 caracteres"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -115,7 +144,11 @@ const RegisterForm = () => {
                 <FormItem>
                   <FormLabel>Confirmar Senha</FormLabel>
                   <FormControl>
-                    <Input placeholder="Confirme sua senha" {...field} />
+                    <Input
+                      type="password"
+                      placeholder="Confirme sua senha"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -123,8 +156,17 @@ const RegisterForm = () => {
             />
           </CardContent>
           <CardFooter>
-            <Button className="w-full cursor-pointer" type="submit">
-              Criar Conta
+            <Button
+              className="w-full cursor-pointer"
+              type="submit"
+              disabled={form.formState.isSubmitting}
+            >
+              <Activity
+                mode={form.formState.isSubmitting ? "visible" : "hidden"}
+              >
+                <Loader2 className="h-5 w-5 animate-spin" />
+              </Activity>
+              {!form.formState.isSubmitting && "Criar Conta"}
             </Button>
           </CardFooter>
         </form>
