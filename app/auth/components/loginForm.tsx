@@ -57,6 +57,7 @@ const LoginForm = () => {
           console.log(error.error.code);
           if (error.error.code === "INVALID_EMAIL_OR_PASSWORD") {
             toast.error("Email ou senha inválidos");
+            return;
           } else {
             toast.error("Erro ao fazer login");
           }

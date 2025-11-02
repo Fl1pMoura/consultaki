@@ -75,6 +75,7 @@ const RegisterForm = () => {
           console.log(error.error.code);
           if (error.error.code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL") {
             toast.error("Email já cadastrado");
+            return;
           } else {
             toast.error("Erro ao fazer login");
           }
