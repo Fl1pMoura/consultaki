@@ -1,8 +1,14 @@
+import { Dialog } from "@/components/ui/dialog";
+
+import ClinicsForm from "./components/clinicsForm";
+
 const ClinicsPage = () => {
   return (
-    <div>
-      <h1>Clínicas</h1>
-    </div>
+    <section>
+      <Dialog open>
+        <ClinicsForm />
+      </Dialog>
+    </section>
   );
 };
 

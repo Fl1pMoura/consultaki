@@ -20,10 +20,7 @@ const DashboardPage = async () => {
     <div>
       <h1>Dashboard</h1>
       <p> Bem-vindo, {session?.user?.name}!</p>
-      <p>
-        {" "}
-        Suas clínicas: {clinics.map((clinic) => clinic.clinicId).join(", ")}
-      </p>
+      <p> Suas clínicas: {clinics.map((clinic) => clinic.name).join(", ")}</p>
     </div>
   );
 };
