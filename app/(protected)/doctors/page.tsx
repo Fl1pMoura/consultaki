@@ -1,6 +1,7 @@
 import { PlusIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 
 import {
   PageContainer,
@@ -11,6 +12,7 @@ import {
   PageHeaderDescription,
   PageTitle,
 } from "../_components/pageContainer";
+import DoctorsForm from "./_components/doctorsForm";
 
 const DoctorsPage = () => {
   return (
@@ -23,10 +25,15 @@ const DoctorsPage = () => {
           </PageHeaderDescription>
         </PageHeaderContent>
         <PageHeaderActions>
-          <Button>
-            <PlusIcon />
-            Adicionar Médico
-          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>
+                <PlusIcon />
+                Adicionar Médico
+              </Button>
+            </DialogTrigger>
+            <DoctorsForm />
+          </Dialog>
         </PageHeaderActions>
       </PageHeader>
       <PageContent>

@@ -1,0 +1,417 @@
+"use client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+import { Activity } from "react";
+import { useForm } from "react-hook-form";
+import { NumericFormat } from "react-number-format";
+import z from "zod";
+
+import { Button } from "@/components/ui/button";
+import {
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const doctorsSchema = z
+  .object({
+    name: z.string().min(1, { message: "Nome é obrigatório" }),
+    email: z.email({ message: "Email inválido" }),
+    speciality: z
+      .string()
+      .trim()
+      .min(1, { message: "Especialidade é obrigatória" }),
+    availableFromWeekDay: z
+      .string()
+      .min(0, { message: "Dia da semana é obrigatório" })
+      .max(6, { message: "Dia da semana é obrigatório" }),
+    availableToWeekDay: z
+      .string()
+      .min(0, { message: "Dia da semana é obrigatório" })
+      .max(6, { message: "Dia da semana é obrigatório" }),
+    availableFromHour: z
+      .string()
+      .min(1, { message: "Hora de início é obrigatória" }),
+    availableToHour: z
+      .string()
+      .min(1, { message: "Hora de término é obrigatória" }),
+    appointmentPrice: z.number().min(1, { message: "Preço é obrigatório" }),
+  })
+  .refine(
+    (data) => {
+      return data.availableFromHour < data.availableToHour;
+    },
+    {
+      path: ["availableToHour"],
+      message: "A hora de término deve ser maior que a hora de início",
+    },
+  )
+  .refine(
+    (data) => {
+      return data.availableFromWeekDay < data.availableToWeekDay;
+    },
+    {
+      path: ["availableToWeekDay"],
+      message: "O dia final deve ser maior que o dia inicial",
+    },
+  );
+
+const DoctorsForm = () => {
+  const form = useForm<z.infer<typeof doctorsSchema>>({
+    resolver: zodResolver(doctorsSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      speciality: "",
+      availableFromWeekDay: "1",
+      availableToWeekDay: "5",
+      availableFromHour: "",
+      availableToHour: "",
+      appointmentPrice: 0,
+    },
+  });
+  async function onSubmit(values: z.infer<typeof doctorsSchema>) {
+    console.log(values);
+  }
+  return (
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Adicionar Médico</DialogTitle>
+        <DialogDescription>
+          Adicione um novo médico à sua clínica.
+        </DialogDescription>
+      </DialogHeader>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+          <div className="space-y-5">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Digite o nome do médico" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Digite o email do médico" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="speciality"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Especialidade</FormLabel>
+                  <FormItem>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Selecione a especialidade" />
+                          <SelectContent>
+                            <SelectItem value="cardiologia">
+                              Cardiologia
+                            </SelectItem>
+                            <SelectItem value="neurologia">
+                              Neurologia
+                            </SelectItem>
+                            <SelectItem value="pediatria">Pediatria</SelectItem>
+                            <SelectItem value="geriatria">Geriatria</SelectItem>
+                            <SelectItem value="endocrinologia">
+                              Endocrinologia
+                            </SelectItem>
+                            <SelectItem value="ginecologia">
+                              Ginecologia
+                            </SelectItem>
+                          </SelectContent>
+                        </SelectTrigger>
+                      </FormControl>
+                    </Select>
+                  </FormItem>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="appointmentPrice"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Preço da consulta</FormLabel>
+                  <FormControl>
+                    <NumericFormat
+                      value={field.value}
+                      onValueChange={(value) =>
+                        field.onChange(value.floatValue ?? 0)
+                      }
+                      thousandSeparator="."
+                      decimalSeparator=","
+                      decimalScale={2}
+                      allowNegative={false}
+                      allowLeadingZeros={false}
+                      fixedDecimalScale={true}
+                      prefix="R$"
+                      customInput={Input}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="availableFromWeekDay"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Dia inicial de disponibilidade</FormLabel>
+                  <FormItem>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value.toString() ?? "1"}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Selecione o dia da semana" />
+                          <SelectContent>
+                            <SelectItem value="0">Domingo</SelectItem>
+                            <SelectItem value="1">Segunda</SelectItem>
+                            <SelectItem value="2">Terça</SelectItem>
+                            <SelectItem value="3">Quarta</SelectItem>
+                            <SelectItem value="4">Quinta</SelectItem>
+                            <SelectItem value="5">Sexta</SelectItem>
+                            <SelectItem value="6">Sábado</SelectItem>
+                          </SelectContent>
+                        </SelectTrigger>
+                      </FormControl>
+                    </Select>
+                  </FormItem>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="availableToWeekDay"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Dia final de disponibilidade</FormLabel>
+                  <FormItem>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value.toString() ?? "5"}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Selecione o dia da semana" />
+                          <SelectContent>
+                            <SelectItem value="0">Domingo</SelectItem>
+                            <SelectItem value="1">Segunda</SelectItem>
+                            <SelectItem value="2">Terça</SelectItem>
+                            <SelectItem value="3">Quarta</SelectItem>
+                            <SelectItem value="4">Quinta</SelectItem>
+                            <SelectItem value="5">Sexta</SelectItem>
+                            <SelectItem value="6">Sábado</SelectItem>
+                          </SelectContent>
+                        </SelectTrigger>
+                      </FormControl>
+                    </Select>
+                  </FormItem>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="availableFromHour"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Hora de início de disponibilidade</FormLabel>
+                  <FormItem>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value.toString() ?? "05:00:00"}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Selecione o horário" />
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>Manhã</SelectLabel>
+                              <SelectItem value="05:00:00">05:00</SelectItem>
+                              <SelectItem value="05:30:00">05:30</SelectItem>
+                              <SelectItem value="06:00:00">06:00</SelectItem>
+                              <SelectItem value="06:30:00">06:30</SelectItem>
+                              <SelectItem value="07:00:00">07:00</SelectItem>
+                              <SelectItem value="07:30:00">07:30</SelectItem>
+                              <SelectItem value="08:00:00">08:00</SelectItem>
+                              <SelectItem value="08:30:00">08:30</SelectItem>
+                              <SelectItem value="09:00:00">09:00</SelectItem>
+                              <SelectItem value="09:30:00">09:30</SelectItem>
+                              <SelectItem value="10:00:00">10:00</SelectItem>
+                              <SelectItem value="10:30:00">10:30</SelectItem>
+                              <SelectItem value="11:00:00">11:00</SelectItem>
+                              <SelectItem value="11:30:00">11:30</SelectItem>
+                              <SelectItem value="12:00:00">12:00</SelectItem>
+                              <SelectItem value="12:30:00">12:30</SelectItem>
+                            </SelectGroup>
+                            <SelectGroup>
+                              <SelectLabel>Tarde</SelectLabel>
+                              <SelectItem value="13:00:00">13:00</SelectItem>
+                              <SelectItem value="13:30:00">13:30</SelectItem>
+                              <SelectItem value="14:00:00">14:00</SelectItem>
+                              <SelectItem value="14:30:00">14:30</SelectItem>
+                              <SelectItem value="15:00:00">15:00</SelectItem>
+                              <SelectItem value="15:30:00">15:30</SelectItem>
+                              <SelectItem value="16:00:00">16:00</SelectItem>
+                              <SelectItem value="16:30:00">16:30</SelectItem>
+                              <SelectItem value="17:00:00">17:00</SelectItem>
+                              <SelectItem value="17:30:00">17:30</SelectItem>
+                              <SelectItem value="18:00:00">18:00</SelectItem>
+                              <SelectItem value="18:30:00">18:30</SelectItem>
+                            </SelectGroup>
+                            <SelectGroup>
+                              <SelectLabel>Noite</SelectLabel>
+                              <SelectItem value="19:00:00">19:00</SelectItem>
+                              <SelectItem value="19:30:00">19:30</SelectItem>
+                              <SelectItem value="20:00:00">20:00</SelectItem>
+                              <SelectItem value="20:30:00">20:30</SelectItem>
+                              <SelectItem value="21:00:00">21:00</SelectItem>
+                              <SelectItem value="21:30:00">21:30</SelectItem>
+                              <SelectItem value="22:00:00">22:00</SelectItem>
+                              <SelectItem value="22:30:00">22:30</SelectItem>
+                              <SelectItem value="23:00:00">23:00</SelectItem>
+                              <SelectItem value="23:30:00">23:30</SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </SelectTrigger>
+                      </FormControl>
+                    </Select>
+                  </FormItem>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="availableToHour"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Hora de término de disponibilidade</FormLabel>
+                  <FormItem>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value.toString() ?? "23:30:00"}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Selecione o horário" />
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>Manhã</SelectLabel>
+                              <SelectItem value="05:00:00">05:00</SelectItem>
+                              <SelectItem value="05:30:00">05:30</SelectItem>
+                              <SelectItem value="06:00:00">06:00</SelectItem>
+                              <SelectItem value="06:30:00">06:30</SelectItem>
+                              <SelectItem value="07:00:00">07:00</SelectItem>
+                              <SelectItem value="07:30:00">07:30</SelectItem>
+                              <SelectItem value="08:00:00">08:00</SelectItem>
+                              <SelectItem value="08:30:00">08:30</SelectItem>
+                              <SelectItem value="09:00:00">09:00</SelectItem>
+                              <SelectItem value="09:30:00">09:30</SelectItem>
+                              <SelectItem value="10:00:00">10:00</SelectItem>
+                              <SelectItem value="10:30:00">10:30</SelectItem>
+                              <SelectItem value="11:00:00">11:00</SelectItem>
+                              <SelectItem value="11:30:00">11:30</SelectItem>
+                              <SelectItem value="12:00:00">12:00</SelectItem>
+                              <SelectItem value="12:30:00">12:30</SelectItem>
+                            </SelectGroup>
+                            <SelectGroup>
+                              <SelectLabel>Tarde</SelectLabel>
+                              <SelectItem value="13:00:00">13:00</SelectItem>
+                              <SelectItem value="13:30:00">13:30</SelectItem>
+                              <SelectItem value="14:00:00">14:00</SelectItem>
+                              <SelectItem value="14:30:00">14:30</SelectItem>
+                              <SelectItem value="15:00:00">15:00</SelectItem>
+                              <SelectItem value="15:30:00">15:30</SelectItem>
+                              <SelectItem value="16:00:00">16:00</SelectItem>
+                              <SelectItem value="16:30:00">16:30</SelectItem>
+                              <SelectItem value="17:00:00">17:00</SelectItem>
+                              <SelectItem value="17:30:00">17:30</SelectItem>
+                              <SelectItem value="18:00:00">18:00</SelectItem>
+                              <SelectItem value="18:30:00">18:30</SelectItem>
+                            </SelectGroup>
+                            <SelectGroup>
+                              <SelectLabel>Noite</SelectLabel>
+                              <SelectItem value="19:00:00">19:00</SelectItem>
+                              <SelectItem value="19:30:00">19:30</SelectItem>
+                              <SelectItem value="20:00:00">20:00</SelectItem>
+                              <SelectItem value="20:30:00">20:30</SelectItem>
+                              <SelectItem value="21:00:00">21:00</SelectItem>
+                              <SelectItem value="21:30:00">21:30</SelectItem>
+                              <SelectItem value="22:00:00">22:00</SelectItem>
+                              <SelectItem value="22:30:00">22:30</SelectItem>
+                              <SelectItem value="23:00:00">23:00</SelectItem>
+                              <SelectItem value="23:30:00">23:30</SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </SelectTrigger>
+                      </FormControl>
+                    </Select>
+                  </FormItem>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <Button
+            className="w-full cursor-pointer"
+            type="submit"
+            disabled={form.formState.isSubmitting}
+          >
+            <Activity mode={form.formState.isSubmitting ? "visible" : "hidden"}>
+              <Loader2 className="h-5 w-5 animate-spin" />
+            </Activity>
+            {!form.formState.isSubmitting && "Adicionar"}
+          </Button>
+        </form>
+      </Form>
+    </DialogContent>
+  );
+};
+
+export default DoctorsForm;
