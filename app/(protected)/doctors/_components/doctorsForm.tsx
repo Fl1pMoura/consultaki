@@ -1,5 +1,7 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import { Loader2 } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
 import { Activity } from "react";
@@ -7,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
 import { toast } from "sonner";
 import z from "zod";
+dayjs.extend(utc);
 
 import { upsertDoctor } from "@/app/_actions/doctors/upsert-doctor";
 import { Button } from "@/components/ui/button";
@@ -112,6 +115,18 @@ const DoctorsForm = ({ onSuccess }: DoctorsFormProps) => {
       appointmentPriceInCents: values.appointmentPrice * 100,
       availableFromWeekDay: parseInt(values.availableFromWeekDay),
       availableToWeekDay: parseInt(values.availableToWeekDay),
+      availableFromHour: dayjs()
+        .set("hour", parseInt(values.availableFromHour.split(":")[0]))
+        .set("minute", parseInt(values.availableFromHour.split(":")[1]))
+        .set("second", parseInt(values.availableFromHour.split(":")[2]))
+        .utc()
+        .format("HH:mm:ss"),
+      availableToHour: dayjs()
+        .set("hour", parseInt(values.availableToHour.split(":")[0]))
+        .set("minute", parseInt(values.availableToHour.split(":")[1]))
+        .set("second", parseInt(values.availableToHour.split(":")[2]))
+        .utc()
+        .format("HH:mm:ss"),
     });
   }
   return (
