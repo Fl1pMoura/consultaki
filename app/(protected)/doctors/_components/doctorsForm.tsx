@@ -2,7 +2,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { Loader2 } from "lucide-react";
+import { Loader2, TrashIcon } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
 import { Activity } from "react";
 import { useForm } from "react-hook-form";
@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import {
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -37,6 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { doctorsTable } from "@/db/schema";
 
 const doctorsSchema = z
   .object({
@@ -83,20 +85,24 @@ const doctorsSchema = z
 
 interface DoctorsFormProps {
   onSuccess?: () => void;
+  doctor?: typeof doctorsTable.$inferSelect;
 }
 
-const DoctorsForm = ({ onSuccess }: DoctorsFormProps) => {
+const DoctorsForm = ({ onSuccess, doctor }: DoctorsFormProps) => {
   const form = useForm<z.infer<typeof doctorsSchema>>({
+    shouldUnregister: true,
     resolver: zodResolver(doctorsSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      speciality: "",
-      availableFromWeekDay: "1",
-      availableToWeekDay: "5",
-      availableFromHour: "",
-      availableToHour: "",
-      appointmentPrice: 0,
+      name: doctor?.name ?? "",
+      email: doctor?.email ?? "",
+      speciality: doctor?.speciality ?? "",
+      availableFromWeekDay: doctor?.availableFromWeekDay?.toString() ?? "1",
+      availableToWeekDay: doctor?.availableToWeekDay?.toString() ?? "5",
+      availableFromHour: doctor?.availableFromHour ?? "",
+      availableToHour: doctor?.availableToHour ?? "",
+      appointmentPrice: doctor?.appointmentPriceInCents
+        ? doctor.appointmentPriceInCents / 100
+        : 0,
     },
   });
   const upsertDoctorAction = useAction(upsertDoctor, {
@@ -111,6 +117,7 @@ const DoctorsForm = ({ onSuccess }: DoctorsFormProps) => {
   });
   function onSubmit(values: z.infer<typeof doctorsSchema>) {
     upsertDoctorAction.execute({
+      id: doctor?.id,
       ...values,
       appointmentPriceInCents: values.appointmentPrice * 100,
       availableFromWeekDay: parseInt(values.availableFromWeekDay),
@@ -132,9 +139,13 @@ const DoctorsForm = ({ onSuccess }: DoctorsFormProps) => {
   return (
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>Adicionar Médico</DialogTitle>
+        <DialogTitle>
+          {doctor ? "Editar Médico" : "Adicionar Médico"}
+        </DialogTitle>
         <DialogDescription>
-          Adicione um novo médico à sua clínica.
+          {doctor
+            ? "Edite as informações do médico"
+            : "Adicione um novo médico à sua clínica."}
         </DialogDescription>
       </DialogHeader>
       <Form {...form}>
@@ -437,18 +448,23 @@ const DoctorsForm = ({ onSuccess }: DoctorsFormProps) => {
               />
             </div>
           </div>
-          <Button
-            className="w-full cursor-pointer"
-            type="submit"
-            disabled={upsertDoctorAction.isPending}
-          >
-            <Activity
-              mode={upsertDoctorAction.isPending ? "visible" : "hidden"}
-            >
-              <Loader2 className="h-5 w-5 animate-spin" />
+          <DialogFooter className="flex items-center justify-between">
+            <Activity mode={doctor ? "visible" : "hidden"}>
+              <Button type="button" variant={"destructive"} className="mr-auto">
+                <TrashIcon />
+                Excluir Médico
+              </Button>
             </Activity>
-            {!upsertDoctorAction.isPending && "Adicionar"}
-          </Button>
+            <Button type="submit" disabled={upsertDoctorAction.isPending}>
+              <Activity
+                mode={upsertDoctorAction.isPending ? "visible" : "hidden"}
+              >
+                <Loader2 className="h-5 w-5 animate-spin" />
+              </Activity>
+              {!upsertDoctorAction.isPending &&
+                (doctor ? "Editar" : "Adicionar")}
+            </Button>
+          </DialogFooter>
         </form>
       </Form>
     </DialogContent>
