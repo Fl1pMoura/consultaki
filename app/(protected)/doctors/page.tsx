@@ -1,3 +1,5 @@
+import { getDoctors } from "@/app/_data/doctors/get-doctors";
+
 import {
   PageContainer,
   PageContent,
@@ -8,8 +10,10 @@ import {
   PageTitle,
 } from "../_components/pageContainer";
 import AddDoctorButton from "./_components/addDoctorButton";
+import DoctorCard from "./_components/doctorCard";
 
-const DoctorsPage = () => {
+const DoctorsPage = async () => {
+  const doctors = await getDoctors();
   return (
     <PageContainer>
       <PageHeader>
@@ -24,7 +28,11 @@ const DoctorsPage = () => {
         </PageHeaderActions>
       </PageHeader>
       <PageContent>
-        <div className="h-full w-full bg-slate-100">teste</div>
+        <div className="grid h-full w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {doctors.map((doctor) => (
+            <DoctorCard key={doctor.id} doctor={doctor} />
+          ))}
+        </div>
       </PageContent>
     </PageContainer>
   );
