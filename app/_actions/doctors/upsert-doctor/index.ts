@@ -1,5 +1,6 @@
 "use server";
 
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
@@ -22,8 +23,16 @@ export const upsertDoctor = actionClient
     if (!session.user.clinicId) {
       throw new Error("Clínica não encontrada");
     }
-    if (data.clinicId !== session.user.clinicId) {
-      throw new Error("Médico não pertence à clínica");
+    if (data.id && data.id !== "") {
+      const existingDoctor = await db.query.doctorsTable.findFirst({
+        where: and(
+          eq(doctorsTable.id, data.id),
+          eq(doctorsTable.clinicId, session.user.clinicId),
+        ),
+      });
+      if (existingDoctor && existingDoctor.clinicId !== session.user.clinicId) {
+        throw new Error("Médico não pertence à clínica");
+      }
     }
     const [doctor] = await db
       .insert(doctorsTable)

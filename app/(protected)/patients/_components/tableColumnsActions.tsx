@@ -1,7 +1,6 @@
 import { EditIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 
-import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import {
@@ -25,46 +24,46 @@ const TableColumnsActions = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <EditIcon className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon">
+          <EditIcon className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
 
-        <DropdownMenuContent>
-          <DropdownMenuGroup>
-            <DropdownMenuLabel className="text-foreground text-xs font-semibold">
-              {patient.name}
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
+      <DropdownMenuContent>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="text-foreground text-xs font-semibold">
+            {patient.name}
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-              <DropdownMenuItem>
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                 <EditIcon className="h-4 w-4" />
                 Editar
               </DropdownMenuItem>
             </DialogTrigger>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                  <Trash2Icon className="h-4 w-4" />
-                  Excluir
-                </DropdownMenuItem>
-              </AlertDialogTrigger>
-              <DeletePatientButton patientId={patient.id} />
-            </AlertDialog>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <PatientsForm
-        isOpen={isOpen}
-        onSuccess={() => {
-          setIsOpen(false);
-        }}
-        patient={patient}
-      />
-    </Dialog>
+            <PatientsForm
+              isOpen={isOpen}
+              onSuccess={() => {
+                setIsOpen(false);
+              }}
+              patient={patient}
+            />
+          </Dialog>
+          <DeletePatientButton
+            patientId={patient.id}
+            trigger={
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                <Trash2Icon className="h-4 w-4" />
+                Excluir
+              </DropdownMenuItem>
+            }
+          />
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

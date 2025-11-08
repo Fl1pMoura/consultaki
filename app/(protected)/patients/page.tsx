@@ -21,7 +21,7 @@ const PatientsPage = async () => {
         <PageHeaderContent>
           <PageTitle>Pacientes</PageTitle>
           <PageHeaderDescription>
-            Acesse um resumo das métricas e dados dos pacientes.
+            Gerencie seus pacientes aqui.
           </PageHeaderDescription>
         </PageHeaderContent>
         <PageHeaderActions>

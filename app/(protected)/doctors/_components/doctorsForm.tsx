@@ -39,6 +39,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { doctorsTable } from "@/db/schema";
+import { authClient } from "@/lib/auth-clients";
 
 import DeleteDoctorButton from "./deleteDoctorButton";
 
@@ -92,6 +93,7 @@ interface DoctorsFormProps {
 }
 
 const DoctorsForm = ({ isOpen, onSuccess, doctor }: DoctorsFormProps) => {
+  const { data: session } = authClient.useSession();
   const form = useForm<z.infer<typeof doctorsSchema>>({
     shouldUnregister: true,
     resolver: zodResolver(doctorsSchema),
@@ -110,17 +112,31 @@ const DoctorsForm = ({ isOpen, onSuccess, doctor }: DoctorsFormProps) => {
   });
   const upsertDoctorAction = useAction(upsertDoctor, {
     onSuccess: () => {
-      toast.success("Médico adicionado com sucesso");
+      toast.success(
+        doctor ? "Médico editado com sucesso" : "Médico adicionado com sucesso",
+      );
       onSuccess?.();
-      form.reset();
+      form.reset({
+        name: "",
+        email: "",
+        speciality: "",
+        availableFromWeekDay: "1",
+        availableToWeekDay: "5",
+        availableFromHour: "05:00:00",
+        availableToHour: "23:30:00",
+        appointmentPrice: 0,
+      });
     },
     onError: () => {
-      toast.error("Erro ao adicionar médico");
+      toast.error(
+        doctor ? "Erro ao editar médico" : "Erro ao adicionar médico",
+      );
     },
   });
   function onSubmit(values: z.infer<typeof doctorsSchema>) {
     upsertDoctorAction.execute({
       id: doctor?.id,
+      clinicId: session?.user.clinicId ?? "",
       ...values,
       appointmentPriceInCents: values.appointmentPrice * 100,
       availableFromWeekDay: parseInt(values.availableFromWeekDay),
@@ -142,11 +158,16 @@ const DoctorsForm = ({ isOpen, onSuccess, doctor }: DoctorsFormProps) => {
   useEffect(() => {
     if (isOpen) {
       form.reset({
-        ...doctor,
+        name: doctor?.name ?? "",
+        email: doctor?.email ?? "",
+        speciality: doctor?.speciality ?? "",
         availableFromWeekDay: doctor?.availableFromWeekDay?.toString() ?? "1",
         availableToWeekDay: doctor?.availableToWeekDay?.toString() ?? "5",
-        availableFromHour: doctor?.availableFromHour ?? "",
-        availableToHour: doctor?.availableToHour ?? "",
+        availableFromHour: doctor?.availableFromHour ?? "05:00:00",
+        availableToHour: doctor?.availableToHour ?? "23:30:00",
+        appointmentPrice: doctor?.appointmentPriceInCents
+          ? doctor.appointmentPriceInCents / 100
+          : 0,
       });
     }
   }, [isOpen, form, doctor]);
@@ -200,7 +221,7 @@ const DoctorsForm = ({ isOpen, onSuccess, doctor }: DoctorsFormProps) => {
                   <FormItem>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value ?? ""}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
@@ -237,7 +258,7 @@ const DoctorsForm = ({ isOpen, onSuccess, doctor }: DoctorsFormProps) => {
                   <FormLabel>Preço da consulta</FormLabel>
                   <FormControl>
                     <NumericFormat
-                      value={field.value}
+                      value={field.value ?? 0}
                       onValueChange={(value) =>
                         field.onChange(value.floatValue ?? 0)
                       }
@@ -264,7 +285,7 @@ const DoctorsForm = ({ isOpen, onSuccess, doctor }: DoctorsFormProps) => {
                   <FormItem>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value.toString() ?? "1"}
+                      value={field.value ?? "1"}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
@@ -295,7 +316,7 @@ const DoctorsForm = ({ isOpen, onSuccess, doctor }: DoctorsFormProps) => {
                   <FormItem>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value.toString() ?? "5"}
+                      value={field.value ?? "5"}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
@@ -327,7 +348,7 @@ const DoctorsForm = ({ isOpen, onSuccess, doctor }: DoctorsFormProps) => {
                     <FormItem>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value.toString() ?? "05:00:00"}
+                        value={field.value ?? "05:00:00"}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -398,7 +419,7 @@ const DoctorsForm = ({ isOpen, onSuccess, doctor }: DoctorsFormProps) => {
                     <FormItem>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value.toString() ?? "23:30:00"}
+                        value={field.value ?? "23:30:00"}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">

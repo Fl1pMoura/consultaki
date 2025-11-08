@@ -43,6 +43,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { patientsTable } from "@/db/schema";
+import { authClient } from "@/lib/auth-clients";
 
 import DeletePatientButton from "./deletePatientButton";
 
@@ -76,6 +77,7 @@ interface PatientsFormProps {
 }
 
 const PatientsForm = ({ isOpen, onSuccess, patient }: PatientsFormProps) => {
+  const { data: session } = authClient.useSession();
   const getInitialBirthDate = () => {
     if (patient?.birthDate) {
       return formatDateToString(new Date(patient.birthDate));
@@ -131,8 +133,8 @@ const PatientsForm = ({ isOpen, onSuccess, patient }: PatientsFormProps) => {
   });
   function onSubmit(values: z.infer<typeof patientsSchema>) {
     // Parse birthDate string to Date if provided
-    let birthDate: Date | null = null;
-    if (birthDateValue) {
+    let birthDate: Date | undefined;
+    if (birthDateValue && birthDateValue !== "") {
       const parsedDate = parseDateString(birthDateValue);
       if (parsedDate) {
         birthDate = parsedDate;
@@ -141,8 +143,9 @@ const PatientsForm = ({ isOpen, onSuccess, patient }: PatientsFormProps) => {
 
     upsertPatientAction.execute({
       id: patient?.id,
+      clinicId: session?.user.clinicId ?? "",
       ...values,
-      birthDate: birthDate ?? undefined,
+      birthDate: birthDate,
     });
   }
   useEffect(() => {
@@ -288,7 +291,7 @@ const PatientsForm = ({ isOpen, onSuccess, patient }: PatientsFormProps) => {
                     <FormControl>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value ?? "male"}
                       >
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Selecione o sexo" />

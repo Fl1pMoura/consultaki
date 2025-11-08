@@ -1,10 +1,11 @@
-import { Loader2 } from "lucide-react";
+import { Loader2, TrashIcon } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
-import { Activity } from "react";
+import { Activity, type ReactNode } from "react";
 import { toast } from "sonner";
 
 import { deletePatient } from "@/app/_actions/patients/delete-patient";
 import {
+  AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
@@ -12,13 +13,19 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 interface DeletePatientButtonProps {
   patientId: string;
+  trigger?: ReactNode;
 }
 
-const DeletePatientButton = ({ patientId }: DeletePatientButtonProps) => {
+const DeletePatientButton = ({
+  patientId,
+  trigger,
+}: DeletePatientButtonProps) => {
   const deletePatientAction = useAction(deletePatient, {
     onSuccess: () => {
       toast.success("Paciente excluído com sucesso");
@@ -31,29 +38,41 @@ const DeletePatientButton = ({ patientId }: DeletePatientButtonProps) => {
     deletePatientAction.execute({ id: patientId });
   }
   return (
-    <AlertDialogContent>
-      <AlertDialogHeader>
-        <AlertDialogTitle>
-          Tem certeza que deseja excluir este paciente?
-        </AlertDialogTitle>
-        <AlertDialogDescription>
-          Esta ação não pode ser desfeita. Isso irá excluir o médico
-          permanentemente e remover seus dados do nosso servidor. paciente
-        </AlertDialogDescription>
-      </AlertDialogHeader>
-      <AlertDialogFooter>
-        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-        <AlertDialogAction
-          onClick={onDeletePatient}
-          disabled={deletePatientAction.isPending}
-        >
-          <Activity mode={deletePatientAction.isPending ? "visible" : "hidden"}>
-            <Loader2 className="h-5 w-5 animate-spin" />
-          </Activity>
-          {!deletePatientAction.isPending && "Excluir"}
-        </AlertDialogAction>
-      </AlertDialogFooter>
-    </AlertDialogContent>
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        {trigger ?? (
+          <Button type="button" variant={"destructive"} className="mr-auto">
+            <TrashIcon />
+            Excluir Paciente
+          </Button>
+        )}
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>
+            Tem certeza que deseja excluir este paciente?
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            Esta ação não pode ser desfeita. Isso irá excluir o paciente
+            permanentemente e remover seus dados do nosso servidor.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={onDeletePatient}
+            disabled={deletePatientAction.isPending}
+          >
+            <Activity
+              mode={deletePatientAction.isPending ? "visible" : "hidden"}
+            >
+              <Loader2 className="h-5 w-5 animate-spin" />
+            </Activity>
+            {!deletePatientAction.isPending && "Excluir"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };
 
