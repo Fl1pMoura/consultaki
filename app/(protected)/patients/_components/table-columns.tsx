@@ -1,20 +1,12 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { EditIcon, Trash2Icon } from "lucide-react";
 
+import { formatDocument } from "@/app/_helpers/format-document";
 import { formatPhone } from "@/app/_helpers/format-phone";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { patientsTable } from "@/db/schema";
+
+import TableColumnsActions from "./tableColumnsActions";
 
 type Patient = typeof patientsTable.$inferSelect;
 
@@ -50,35 +42,30 @@ export const columns: ColumnDef<Patient>[] = [
     },
   },
   {
+    id: "document",
+    header: "Documento",
+    cell: ({ row }) => {
+      return <div>{formatDocument(row.original.document)}</div>;
+    },
+  },
+  {
+    id: "agreement",
+    header: "Convênio",
+    cell: ({ row }) => {
+      const agreement = row.original.agreement;
+      if (agreement) {
+        return <div>{agreement}</div>;
+      }
+      return <div className="bg-muted-foreground/60 h-px w-4 rounded-md"></div>;
+    },
+  },
+  {
     id: "actions",
     header: "Ações",
     cell: ({ row }) => {
       return (
         <div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <EditIcon className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent>
-              <DropdownMenuGroup>
-                <DropdownMenuLabel className="text-foreground text-xs font-semibold">
-                  {row.original.name}
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <EditIcon className="h-4 w-4" />
-                  Editar
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Trash2Icon className="h-4 w-4" />
-                  Excluir
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <TableColumnsActions patient={row.original} />
         </div>
       );
     },

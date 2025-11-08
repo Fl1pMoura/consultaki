@@ -83,9 +83,12 @@ const PatientsForm = ({ isOpen, onSuccess, patient }: PatientsFormProps) => {
     return "";
   };
 
-  const [documentValue, setDocumentValue] = useState<string>(
-    patient?.document ?? "",
-  );
+  const getInitialDocument = () => {
+    return patient?.document ?? "";
+  };
+
+  const [documentValue, setDocumentValue] =
+    useState<string>(getInitialDocument());
   const [birthDateValue, setBirthDateValue] = useState<string>(
     getInitialBirthDate(),
   );
@@ -100,19 +103,30 @@ const PatientsForm = ({ isOpen, onSuccess, patient }: PatientsFormProps) => {
       sex: patient?.sex ?? "male",
       birthDate: patient?.birthDate ? new Date(patient.birthDate) : null,
       document: patient?.document ?? "",
-      agreement: patient?.agreement ?? undefined,
+      agreement: patient?.agreement ?? "",
     },
   });
   const upsertPatientAction = useAction(upsertPatient, {
     onSuccess: () => {
-      toast.success("Paciente adicionado com sucesso");
+      toast.success(
+        `Paciente ${patient ? "editado" : "adicionado"} com sucesso`,
+      );
       onSuccess?.();
-      form.reset();
+      // Reset do formulário e limpeza dos estados locais
+      form.reset({
+        name: "",
+        email: "",
+        phone: "",
+        sex: "male",
+        birthDate: null,
+        document: "",
+        agreement: "",
+      });
       setDocumentValue("");
       setBirthDateValue("");
     },
     onError: () => {
-      toast.error("Erro ao adicionar paciente");
+      toast.error(`Erro ao ${patient ? "editar" : "adicionar"} paciente`);
     },
   });
   function onSubmit(values: z.infer<typeof patientsSchema>) {
@@ -132,26 +146,35 @@ const PatientsForm = ({ isOpen, onSuccess, patient }: PatientsFormProps) => {
     });
   }
   useEffect(() => {
-    if (isOpen) {
-      const birthDate = patient?.birthDate ? new Date(patient.birthDate) : null;
-      const formattedBirthDate = birthDate ? formatDateToString(birthDate) : "";
-
-      form.reset({
-        name: patient?.name ?? "",
-        email: patient?.email ?? "",
-        phone: patient?.phone ?? "",
-        sex: patient?.sex ?? "male",
-        birthDate: birthDate,
-        document: patient?.document ?? "",
-        agreement: patient?.agreement ?? undefined,
-      });
-
-      // Usar setTimeout para evitar setState síncrono no effect
-      setTimeout(() => {
-        setDocumentValue(patient?.document ?? "");
-        setBirthDateValue(formattedBirthDate);
-      }, 0);
+    if (!isOpen) {
+      // Limpar estados quando o diálogo fechar
+      return;
     }
+
+    const birthDate = patient?.birthDate ? new Date(patient.birthDate) : null;
+    const formattedBirthDate = birthDate ? formatDateToString(birthDate) : "";
+    const patientDocument = patient?.document ?? "";
+
+    form.reset({
+      name: patient?.name ?? "",
+      email: patient?.email ?? "",
+      phone: patient?.phone ?? "",
+      sex: patient?.sex ?? "male",
+      birthDate: birthDate,
+      document: patientDocument,
+      agreement: patient?.agreement ?? "",
+    });
+
+    // Sincronizar estados locais após o reset do formulário
+    // Usar setTimeout para evitar setState síncrono no effect
+    const timeoutId = setTimeout(() => {
+      setDocumentValue(patientDocument);
+      setBirthDateValue(formattedBirthDate);
+    }, 0);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, [isOpen, form, patient]);
   return (
     <DialogContent>
@@ -202,7 +225,7 @@ const PatientsForm = ({ isOpen, onSuccess, patient }: PatientsFormProps) => {
                 control={form.control}
                 name="phone"
                 render={({ field }) => {
-                  const phoneValue = field.value || "";
+                  const phoneValue = field.value ?? "";
 
                   return (
                     <FormItem className="w-full">
@@ -229,12 +252,15 @@ const PatientsForm = ({ isOpen, onSuccess, patient }: PatientsFormProps) => {
                 control={form.control}
                 name="document"
                 render={({ field }) => {
+                  // Usa documentValue se disponível, senão usa field.value formatado
+                  const currentValue = documentValue || field.value || "";
+
                   return (
                     <FormItem className="w-full">
                       <FormLabel>Documento</FormLabel>
                       <FormControl>
                         <Input
-                          value={documentValue}
+                          value={formatDocument(currentValue)}
                           onChange={(e) => {
                             const inputValue = e.target.value;
                             const formatted = formatDocument(inputValue);
@@ -287,7 +313,7 @@ const PatientsForm = ({ isOpen, onSuccess, patient }: PatientsFormProps) => {
                       <PatternFormat
                         format="##/##/####"
                         mask="_"
-                        value={birthDateValue}
+                        value={birthDateValue ?? ""}
                         onValueChange={(values) => {
                           setBirthDateValue(values.formattedValue);
                           const parsedDate = parseDateString(
@@ -328,8 +354,9 @@ const PatientsForm = ({ isOpen, onSuccess, patient }: PatientsFormProps) => {
                   </FormLabel>
                   <FormControl>
                     <Input
+                      value={field.value ?? ""}
+                      onChange={field.onChange}
                       placeholder="Digite o convênio do paciente (ex: SulAmérica, UNIMED, etc.)"
-                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -348,7 +375,7 @@ const PatientsForm = ({ isOpen, onSuccess, patient }: PatientsFormProps) => {
                 <Loader2 className="h-5 w-5 animate-spin" />
               </Activity>
               {!upsertPatientAction.isPending &&
-                (patient ? "Editar" : "Adicionar")}
+                (patient ? "Salvar" : "Adicionar")}
             </Button>
           </DialogFooter>
         </form>
