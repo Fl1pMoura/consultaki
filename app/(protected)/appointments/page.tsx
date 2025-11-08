@@ -1,6 +1,5 @@
-import { PlusIcon } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
+import { getDoctors } from "@/app/_data/doctors/get-doctors";
+import { getPatients } from "@/app/_data/patients/get-patients";
 
 import {
   PageContainer,
@@ -11,8 +10,11 @@ import {
   PageHeaderDescription,
   PageTitle,
 } from "../_components/pageContainer";
+import AddAppointmentButton from "./_components/addAppointmentButton";
 
-const AppointmentsPage = () => {
+const AppointmentsPage = async () => {
+  const patients = await getPatients();
+  const doctors = await getDoctors();
   return (
     <PageContainer>
       <PageHeader>
@@ -23,15 +25,10 @@ const AppointmentsPage = () => {
           </PageHeaderDescription>
         </PageHeaderContent>
         <PageHeaderActions>
-          <Button>
-            <PlusIcon />
-            Agendar consulta
-          </Button>
+          <AddAppointmentButton patients={patients} doctors={doctors} />
         </PageHeaderActions>
       </PageHeader>
-      <PageContent>
-        <div className="h-full w-full bg-slate-100">teste</div>
-      </PageContent>
+      <PageContent></PageContent>
     </PageContainer>
   );
 };
