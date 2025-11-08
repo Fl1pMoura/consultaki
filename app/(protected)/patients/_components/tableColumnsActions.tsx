@@ -1,6 +1,7 @@
 import { EditIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 
+import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import {
@@ -14,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { patientsTable } from "@/db/schema";
 
+import DeletePatientButton from "./deletePatientButton";
 import PatientsForm from "./patientForm";
 
 const TableColumnsActions = ({
@@ -43,10 +45,15 @@ const TableColumnsActions = ({
                 Editar
               </DropdownMenuItem>
             </DialogTrigger>
-            <DropdownMenuItem>
-              <Trash2Icon className="h-4 w-4" />
-              Excluir
-            </DropdownMenuItem>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  <Trash2Icon className="h-4 w-4" />
+                  Excluir
+                </DropdownMenuItem>
+              </AlertDialogTrigger>
+              <DeletePatientButton patientId={patient.id} />
+            </AlertDialog>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
