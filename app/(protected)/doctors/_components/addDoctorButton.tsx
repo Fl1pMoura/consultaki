@@ -8,16 +8,16 @@ import { Button } from "@/components/ui/button";
 import DoctorsForm from "./doctorsForm";
 
 const AddDoctorButton = () => {
-  const [open, setOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button>
           <PlusIcon />
           Adicionar Médico
         </Button>
       </DialogTrigger>
-      <DoctorsForm onSuccess={() => setOpen(false)} />
+      <DoctorsForm isOpen={isOpen} onSuccess={() => setIsOpen(false)} />
     </Dialog>
   );
 };

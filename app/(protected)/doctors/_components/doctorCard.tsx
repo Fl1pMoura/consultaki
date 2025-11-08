@@ -93,6 +93,7 @@ const DoctorCard = ({ doctor }: DoctorCardProps) => {
             <Button className="w-full">Ver Detalhes</Button>
           </DialogTrigger>
           <DoctorsForm
+            isOpen={isOpen}
             onSuccess={() => setIsOpen(false)}
             doctor={{
               ...doctor,

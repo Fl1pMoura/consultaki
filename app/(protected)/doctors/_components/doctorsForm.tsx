@@ -2,9 +2,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { Loader2, TrashIcon } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
-import { Activity } from "react";
+import { Activity, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
 import { toast } from "sonner";
@@ -39,6 +39,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { doctorsTable } from "@/db/schema";
+
+import DeleteDoctorButton from "./deleteDoctorButton";
 
 const doctorsSchema = z
   .object({
@@ -84,11 +86,12 @@ const doctorsSchema = z
   );
 
 interface DoctorsFormProps {
+  isOpen: boolean;
   onSuccess?: () => void;
   doctor?: typeof doctorsTable.$inferSelect;
 }
 
-const DoctorsForm = ({ onSuccess, doctor }: DoctorsFormProps) => {
+const DoctorsForm = ({ isOpen, onSuccess, doctor }: DoctorsFormProps) => {
   const form = useForm<z.infer<typeof doctorsSchema>>({
     shouldUnregister: true,
     resolver: zodResolver(doctorsSchema),
@@ -136,6 +139,17 @@ const DoctorsForm = ({ onSuccess, doctor }: DoctorsFormProps) => {
         .format("HH:mm:ss"),
     });
   }
+  useEffect(() => {
+    if (isOpen) {
+      form.reset({
+        ...doctor,
+        availableFromWeekDay: doctor?.availableFromWeekDay?.toString() ?? "1",
+        availableToWeekDay: doctor?.availableToWeekDay?.toString() ?? "5",
+        availableFromHour: doctor?.availableFromHour ?? "",
+        availableToHour: doctor?.availableToHour ?? "",
+      });
+    }
+  }, [isOpen, form, doctor]);
   return (
     <DialogContent>
       <DialogHeader>
@@ -450,10 +464,7 @@ const DoctorsForm = ({ onSuccess, doctor }: DoctorsFormProps) => {
           </div>
           <DialogFooter className="flex items-center justify-between">
             <Activity mode={doctor ? "visible" : "hidden"}>
-              <Button type="button" variant={"destructive"} className="mr-auto">
-                <TrashIcon />
-                Excluir Médico
-              </Button>
+              <DeleteDoctorButton doctorId={doctor?.id ?? ""} />
             </Activity>
             <Button type="submit" disabled={upsertDoctorAction.isPending}>
               <Activity
