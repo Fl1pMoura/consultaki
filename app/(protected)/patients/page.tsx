@@ -1,6 +1,5 @@
-import { PlusIcon } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
+import { getPatients } from "@/app/_data/patients/get-patients";
+import { DataTable } from "@/components/ui/data-table";
 
 import {
   PageContainer,
@@ -11,8 +10,11 @@ import {
   PageHeaderDescription,
   PageTitle,
 } from "../_components/pageContainer";
+import AddPatientButton from "./_components/addPatientButton";
+import { columns } from "./_components/table-columns";
 
-const PatientsPage = () => {
+const PatientsPage = async () => {
+  const patients = await getPatients();
   return (
     <PageContainer>
       <PageHeader>
@@ -23,14 +25,11 @@ const PatientsPage = () => {
           </PageHeaderDescription>
         </PageHeaderContent>
         <PageHeaderActions>
-          <Button>
-            <PlusIcon />
-            Adicionar Paciente
-          </Button>
+          <AddPatientButton />
         </PageHeaderActions>
       </PageHeader>
       <PageContent>
-        <div className="h-full w-full bg-slate-100">teste</div>
+        <DataTable columns={columns} data={patients} />
       </PageContent>
     </PageContainer>
   );

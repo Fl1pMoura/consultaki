@@ -4,14 +4,14 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
 import { db } from "@/db";
-import { doctorsTable } from "@/db/schema";
+import { patientsTable } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { actionClient } from "@/lib/next-safe-action";
 
-import { UpsertDoctorSchema } from "./schema";
+import { UpsertPatientSchema } from "./schema";
 
-export const upsertDoctor = actionClient
-  .inputSchema(UpsertDoctorSchema)
+export const upsertPatient = actionClient
+  .inputSchema(UpsertPatientSchema)
   .action(async ({ parsedInput: data }) => {
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -22,24 +22,24 @@ export const upsertDoctor = actionClient
     if (!session.user.clinicId) {
       throw new Error("Clínica não encontrada");
     }
-    if (data.clinicId !== session.user.clinicId) {
-      throw new Error("Médico não pertence à clínica");
+    if (data.clinicId && data.clinicId !== session.user.clinicId) {
+      throw new Error("Paciente não pertence à clínica");
     }
-    const [doctor] = await db
-      .insert(doctorsTable)
+    const [patient] = await db
+      .insert(patientsTable)
       .values({
-        clinicId: session.user.clinicId,
         id: data.id,
+        clinicId: session.user.clinicId,
         ...data,
       })
       .onConflictDoUpdate({
-        target: [doctorsTable.id],
+        target: [patientsTable.id],
         set: {
           ...data,
         },
       })
       .returning();
 
-    revalidatePath("/doctors");
-    return doctor;
+    revalidatePath("/patients");
+    return patient;
   });
