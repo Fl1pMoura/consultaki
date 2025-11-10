@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { auth } from "@/lib/auth";
 
 import LoginForm from "./_components/loginForm";
+import MagicLinkForm from "./_components/magicLinkForm";
 import RegisterForm from "./_components/registerForm";
 
 const AuthPage = async () => {
@@ -20,12 +21,16 @@ const AuthPage = async () => {
         <TabsList>
           <TabsTrigger value="login">Login</TabsTrigger>
           <TabsTrigger value="register">Criar Conta</TabsTrigger>
+          <TabsTrigger value="magicLink">Link de Login</TabsTrigger>
         </TabsList>
         <TabsContent value="login">
           <LoginForm />
         </TabsContent>
         <TabsContent value="register">
           <RegisterForm />
+        </TabsContent>
+        <TabsContent value="magicLink">
+          <MagicLinkForm />
         </TabsContent>
       </Tabs>
     </section>

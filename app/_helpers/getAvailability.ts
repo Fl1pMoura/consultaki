@@ -26,3 +26,18 @@ export const getAvailability = (doctor: typeof doctorsTable.$inferSelect) => {
 
   return { from, to };
 };
+
+export const generateTimeSlots = (interval: number = 30) => {
+  if (interval !== 30 && interval !== 60) {
+    throw new Error("Interval must be 30 or 60");
+  }
+  const timeSlots = [];
+  for (let i = 0; i < 24; i++) {
+    for (let j = 0; j < 60; j += interval) {
+      timeSlots.push(
+        `${i.toString().padStart(2, "0")}:${j.toString().padStart(2, "0")}:00`,
+      );
+    }
+  }
+  return timeSlots;
+};

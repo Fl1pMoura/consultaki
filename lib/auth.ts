@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { customSession } from "better-auth/plugins";
+import { customSession, magicLink } from "better-auth/plugins";
 import { eq } from "drizzle-orm";
 
 import { db } from "@/db";
@@ -34,6 +34,12 @@ export const auth = betterAuth({
         },
         session,
       };
+    }),
+    magicLink({
+      sendMagicLink: async ({ email, token, url }, request) => {
+        // send email with the magic link
+        console.log(email, token, url);
+      },
     }),
   ],
 });

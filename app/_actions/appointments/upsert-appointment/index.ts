@@ -1,5 +1,6 @@
 "use server";
 
+import dayjs from "dayjs";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
@@ -10,6 +11,7 @@ import { appointmentsTable } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { actionClient } from "@/lib/next-safe-action";
 
+import { getDoctorAvailability } from "../../doctors/get-doctor-availability";
 import { UpsertAppointmentSchema } from "./schema";
 
 export const upsertAppointment = actionClient
@@ -38,6 +40,22 @@ export const upsertAppointment = actionClient
         throw new Error("Agendamento não pertence à clínica");
       }
     }
+    const availableTimes = await getDoctorAvailability({
+      doctorId: data.doctorId,
+      selectedDate: dayjs(data.appointmentDate).format("YYYY-MM-DD"),
+    });
+    if (!availableTimes.data) {
+      throw new Error("Horário não disponível para o médico");
+    }
+    const isTimeAvailable = availableTimes.data.some(
+      (time) =>
+        time.value === dayjs(data.appointmentDate).format("HH:mm:ss") &&
+        time.available,
+    );
+    if (!isTimeAvailable) {
+      throw new Error("Horário não disponível para o médico");
+    }
+
     const [appointment] = await db
       .insert(appointmentsTable)
       .values({
