@@ -1,5 +1,7 @@
+import dayjs from "dayjs";
 import { CalendarDaysIcon } from "lucide-react";
 
+import { getAppointments } from "@/app/_data/dashboard/get-appointments";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import {
@@ -10,7 +12,21 @@ import {
   StatsCardTitle,
 } from "./statsCard";
 
-export const AppointmentsCard = () => {
+interface AppointmentsCardProps {
+  searchParams: {
+    from: string;
+    to: string;
+  };
+}
+
+export const AppointmentsCard = async ({
+  searchParams,
+}: AppointmentsCardProps) => {
+  const { from, to } = searchParams;
+  const appointments = await getAppointments({
+    from: dayjs(from).toDate(),
+    to: dayjs(to).toDate(),
+  });
   return (
     <StatsCard>
       <StatsCardHeader>
@@ -19,7 +35,7 @@ export const AppointmentsCard = () => {
         </StatsCardIcon>
         <StatsCardDescription>Agendamentos</StatsCardDescription>
       </StatsCardHeader>
-      <StatsCardTitle>100</StatsCardTitle>
+      <StatsCardTitle>{appointments}</StatsCardTitle>
     </StatsCard>
   );
 };
