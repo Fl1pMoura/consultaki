@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
@@ -22,6 +23,14 @@ import { DoctorsCard, SkeletonDoctorsCard } from "./_components/doctorsCard";
 import { PatientsCard, SkeletonPatientsCard } from "./_components/patientsCard";
 import { RangeDatePicker } from "./_components/rangeDatePicker";
 import { RevenueCard, SkeletonCard } from "./_components/revenueCard";
+import {
+  SkeletonSpecialitiesCard,
+  SpecialitiesCard,
+} from "./_components/specialitiesCard";
+import {
+  SkeletonTopDoctorsCard,
+  TopDoctorsCard,
+} from "./_components/topDoctorsCard";
 
 interface DashboardPageProps {
   searchParams: {
@@ -43,6 +52,20 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
     redirect("/clinics");
   }
   const { from, to } = await searchParams;
+  if (!from || !to) {
+    redirect(
+      "/dashboard?from=" +
+        dayjs()
+          .month(new Date().getMonth())
+          .startOf("month")
+          .format("YYYY-MM-DD") +
+        "&to=" +
+        dayjs()
+          .month(new Date().getMonth())
+          .endOf("month")
+          .format("YYYY-MM-DD"),
+    );
+  }
 
   return (
     <PageContainer>
@@ -57,19 +80,35 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
           <RangeDatePicker />
         </PageHeaderActions>
       </PageHeader>
-      <PageContent>
+      <PageContent className="space-y-4">
         <div className="grid grid-cols-4 gap-4">
           <Suspense fallback={<SkeletonCard />}>
             <RevenueCard searchParams={{ from, to }} />
           </Suspense>
           <Suspense fallback={<SkeletonAppointmentsCard />}>
-            <AppointmentsCard />
+            <AppointmentsCard searchParams={{ from, to }} />
           </Suspense>
           <Suspense fallback={<SkeletonPatientsCard />}>
-            <PatientsCard />
+            <PatientsCard searchParams={{ from, to }} />
           </Suspense>
           <Suspense fallback={<SkeletonDoctorsCard />}>
-            <DoctorsCard />
+            <DoctorsCard searchParams={{ from, to }} />
+          </Suspense>
+        </div>
+        <div className="grid grid-cols-[2.5fr_1fr] gap-4">
+          <Suspense fallback={<SkeletonTopDoctorsCard />}>
+            <TopDoctorsCard searchParams={{ from, to }} />
+          </Suspense>
+          <Suspense fallback={<SkeletonTopDoctorsCard />}>
+            <TopDoctorsCard searchParams={{ from, to }} />
+          </Suspense>
+        </div>
+        <div className="grid grid-cols-[2.5fr_1fr] gap-4">
+          <Suspense fallback={<SkeletonSpecialitiesCard />}>
+            <SpecialitiesCard searchParams={{ from, to }} />
+          </Suspense>
+          <Suspense fallback={<SkeletonSpecialitiesCard />}>
+            <SpecialitiesCard searchParams={{ from, to }} />
           </Suspense>
         </div>
       </PageContent>
