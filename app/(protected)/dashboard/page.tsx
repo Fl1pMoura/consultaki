@@ -1,9 +1,8 @@
-import { PlusIcon } from "lucide-react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 import { getClinics } from "@/app/_data/clinics/get-clinics";
-import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
 
 import {
@@ -15,8 +14,23 @@ import {
   PageHeaderDescription,
   PageTitle,
 } from "../_components/pageContainer";
+import {
+  AppointmentsCard,
+  SkeletonAppointmentsCard,
+} from "./_components/appointmentsCard";
+import { DoctorsCard, SkeletonDoctorsCard } from "./_components/doctorsCard";
+import { PatientsCard, SkeletonPatientsCard } from "./_components/patientsCard";
+import { RangeDatePicker } from "./_components/rangeDatePicker";
+import { RevenueCard, SkeletonCard } from "./_components/revenueCard";
 
-const DashboardPage = async () => {
+interface DashboardPageProps {
+  searchParams: {
+    from?: string;
+    to?: string;
+  };
+}
+
+const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -28,6 +42,8 @@ const DashboardPage = async () => {
   if (!clinics.length) {
     redirect("/clinics");
   }
+  const { from, to } = await searchParams;
+
   return (
     <PageContainer>
       <PageHeader>
@@ -38,14 +54,24 @@ const DashboardPage = async () => {
           </PageHeaderDescription>
         </PageHeaderContent>
         <PageHeaderActions>
-          <Button>
-            <PlusIcon />
-            Adicionar Médico
-          </Button>
+          <RangeDatePicker />
         </PageHeaderActions>
       </PageHeader>
       <PageContent>
-        <div className="h-full w-full bg-slate-100">teste</div>
+        <div className="grid grid-cols-4 gap-4">
+          <Suspense fallback={<SkeletonCard />}>
+            <RevenueCard searchParams={{ from, to }} />
+          </Suspense>
+          <Suspense fallback={<SkeletonAppointmentsCard />}>
+            <AppointmentsCard />
+          </Suspense>
+          <Suspense fallback={<SkeletonPatientsCard />}>
+            <PatientsCard />
+          </Suspense>
+          <Suspense fallback={<SkeletonDoctorsCard />}>
+            <DoctorsCard />
+          </Suspense>
+        </div>
       </PageContent>
     </PageContainer>
   );
