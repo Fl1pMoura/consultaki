@@ -1,5 +1,7 @@
+import dayjs from "dayjs";
 import { StethoscopeIcon } from "lucide-react";
 
+import { getDashboardDoctors } from "@/app/_data/dashboard/get-dashboard-doctors";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import {
@@ -10,7 +12,19 @@ import {
   StatsCardTitle,
 } from "./statsCard";
 
-export const DoctorsCard = () => {
+interface DoctorsCardProps {
+  searchParams: {
+    from: string;
+    to: string;
+  };
+}
+
+export const DoctorsCard = async ({ searchParams }: DoctorsCardProps) => {
+  const { from, to } = searchParams;
+  const doctors = await getDashboardDoctors({
+    from: dayjs(from).toDate(),
+    to: dayjs(to).toDate(),
+  });
   return (
     <StatsCard>
       <StatsCardHeader>
@@ -19,7 +33,7 @@ export const DoctorsCard = () => {
         </StatsCardIcon>
         <StatsCardDescription>Médicos</StatsCardDescription>
       </StatsCardHeader>
-      <StatsCardTitle>100</StatsCardTitle>
+      <StatsCardTitle>{doctors}</StatsCardTitle>
     </StatsCard>
   );
 };

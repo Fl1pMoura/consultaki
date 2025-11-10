@@ -4,6 +4,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 export const StatsCardIcon = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -15,29 +16,45 @@ export const StatsCardIcon = ({ children }: { children: React.ReactNode }) => {
 
 export const StatsCardHeader = ({
   children,
+  className,
 }: {
   children: React.ReactNode;
+  className?: string;
 }) => {
   return (
-    <CardHeader className="flex items-center gap-2 p-0">{children}</CardHeader>
+    <CardHeader className={cn("flex items-center gap-2 p-0", className)}>
+      {children}
+    </CardHeader>
   );
 };
 
 export const StatsCardDescription = ({
   children,
+  className,
 }: {
   children: React.ReactNode;
+  className?: string;
 }) => {
   return (
-    <CardDescription className="text-muted-foreground text-sm font-semibold">
+    <CardDescription
+      className={cn("text-muted-foreground text-sm font-semibold", className)}
+    >
       {children}
     </CardDescription>
   );
 };
 
-export const StatsCardTitle = ({ children }: { children: React.ReactNode }) => {
+export const StatsCardTitle = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => {
   return (
-    <CardTitle className="text-2xl font-bold text-black">{children}</CardTitle>
+    <CardTitle className={cn("text-2xl font-bold text-black", className)}>
+      {children}
+    </CardTitle>
   );
 };
 

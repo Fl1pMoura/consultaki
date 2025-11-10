@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 export const PageContainer = ({ children }: { children: React.ReactNode }) => {
   return <div className="h-full w-full space-y-6 p-6">{children}</div>;
 };
@@ -31,6 +33,12 @@ export const PageHeaderActions = ({
   return <div className="flex items-center gap-2">{children}</div>;
 };
 
-export const PageContent = ({ children }: { children: React.ReactNode }) => {
-  return <div className="h-fit w-full">{children}</div>;
+export const PageContent = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => {
+  return <div className={cn("h-fit w-full", className)}>{children}</div>;
 };
