@@ -1,5 +1,7 @@
+import dayjs from "dayjs";
 import { Users2Icon } from "lucide-react";
 
+import { getDashboardPatients } from "@/app/_data/dashboard/get-dashboard-patients";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import {
@@ -10,7 +12,19 @@ import {
   StatsCardTitle,
 } from "./statsCard";
 
-export const PatientsCard = () => {
+interface PatientsCardProps {
+  searchParams: {
+    from: string;
+    to: string;
+  };
+}
+
+export const PatientsCard = async ({ searchParams }: PatientsCardProps) => {
+  const { from, to } = searchParams;
+  const patients = await getDashboardPatients({
+    from: dayjs(from).toDate(),
+    to: dayjs(to).toDate(),
+  });
   return (
     <StatsCard>
       <StatsCardHeader>
@@ -19,7 +33,7 @@ export const PatientsCard = () => {
         </StatsCardIcon>
         <StatsCardDescription>Pacientes</StatsCardDescription>
       </StatsCardHeader>
-      <StatsCardTitle>100</StatsCardTitle>
+      <StatsCardTitle>{patients}</StatsCardTitle>
     </StatsCard>
   );
 };
