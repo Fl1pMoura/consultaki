@@ -4,12 +4,14 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { Loader2 } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
-import { Activity, useEffect } from "react";
+import { Activity, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
 import { toast } from "sonner";
 import z from "zod";
 dayjs.extend(utc);
+
+import Image from "next/image";
 
 import { upsertDoctor } from "@/app/_actions/doctors/upsert-doctor";
 import { Button } from "@/components/ui/button";
@@ -20,6 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { FileInput } from "@/components/ui/file-inputs";
 import {
   Form,
   FormControl,
@@ -66,6 +69,7 @@ const doctorsSchema = z
       .string()
       .min(1, { message: "Hora de término é obrigatória" }),
     appointmentPrice: z.number().min(1, { message: "Preço é obrigatório" }),
+    image: z.string().optional(),
   })
   .refine(
     (data) => {
@@ -94,6 +98,8 @@ interface DoctorsFormProps {
 
 const DoctorsForm = ({ isOpen, onSuccess, doctor }: DoctorsFormProps) => {
   const { data: session } = authClient.useSession();
+  const [file, setFile] = useState<File | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const form = useForm<z.infer<typeof doctorsSchema>>({
     shouldUnregister: true,
     resolver: zodResolver(doctorsSchema),
@@ -108,6 +114,7 @@ const DoctorsForm = ({ isOpen, onSuccess, doctor }: DoctorsFormProps) => {
       appointmentPrice: doctor?.appointmentPriceInCents
         ? doctor.appointmentPriceInCents / 100
         : 0,
+      image: doctor?.imageUrl ?? undefined,
     },
   });
   const upsertDoctorAction = useAction(upsertDoctor, {
@@ -125,7 +132,9 @@ const DoctorsForm = ({ isOpen, onSuccess, doctor }: DoctorsFormProps) => {
         availableFromHour: "05:00:00",
         availableToHour: "23:30:00",
         appointmentPrice: 0,
+        image: undefined,
       });
+      setFile(null);
     },
     onError: () => {
       toast.error(
@@ -133,7 +142,7 @@ const DoctorsForm = ({ isOpen, onSuccess, doctor }: DoctorsFormProps) => {
       );
     },
   });
-  function onSubmit(values: z.infer<typeof doctorsSchema>) {
+  async function onSubmit(values: z.infer<typeof doctorsSchema>) {
     upsertDoctorAction.execute({
       id: doctor?.id,
       clinicId: session?.user.clinicId ?? "",
@@ -153,6 +162,7 @@ const DoctorsForm = ({ isOpen, onSuccess, doctor }: DoctorsFormProps) => {
         .set("second", parseInt(values.availableToHour.split(":")[2]))
         .utc()
         .format("HH:mm:ss"),
+      image: values.image,
     });
   }
   useEffect(() => {
@@ -168,11 +178,12 @@ const DoctorsForm = ({ isOpen, onSuccess, doctor }: DoctorsFormProps) => {
         appointmentPrice: doctor?.appointmentPriceInCents
           ? doctor.appointmentPriceInCents / 100
           : 0,
+        image: doctor?.imageUrl ?? undefined,
       });
     }
   }, [isOpen, form, doctor]);
   return (
-    <DialogContent>
+    <DialogContent className="max-h-[90vh] overflow-y-auto">
       <DialogHeader>
         <DialogTitle>
           {doctor ? "Editar Médico" : "Adicionar Médico"}
@@ -208,6 +219,100 @@ const DoctorsForm = ({ isOpen, onSuccess, doctor }: DoctorsFormProps) => {
                   <FormControl>
                     <Input placeholder="Digite o email do médico" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="image"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Imagem</FormLabel>
+                  <FormControl>
+                    <div className="space-y-2">
+                      <FileInput
+                        className="w-full"
+                        value={file}
+                        onChange={async (selectedFile) => {
+                          setFile(selectedFile);
+                          if (selectedFile) {
+                            setIsUploadingImage(true);
+                            try {
+                              // Faz upload via API route
+                              const formData = new FormData();
+                              formData.append("image", selectedFile);
+                              formData.append("folder", "doctors");
+                              formData.append("maxWidth", "100");
+                              formData.append("quality", "100");
+
+                              const response = await fetch(
+                                "/api/upload-image",
+                                {
+                                  method: "POST",
+                                  body: formData,
+                                },
+                              );
+
+                              if (!response.ok) {
+                                const error = await response.json();
+                                throw new Error(
+                                  error.error || "Erro ao fazer upload",
+                                );
+                              }
+
+                              const { url } = await response.json();
+                              field.onChange(url);
+                              toast.success("Imagem enviada com sucesso");
+                            } catch (error) {
+                              console.error("Erro ao fazer upload:", error);
+                              toast.error(
+                                error instanceof Error
+                                  ? error.message
+                                  : "Erro ao fazer upload da imagem",
+                              );
+                              setFile(null);
+                              field.onChange(undefined);
+                            } finally {
+                              setIsUploadingImage(false);
+                            }
+                          } else {
+                            field.onChange(undefined);
+                          }
+                        }}
+                        disabled={
+                          form.formState.isSubmitting || isUploadingImage
+                        }
+                        accept="image/*"
+                      />
+                      {isUploadingImage && (
+                        <div className="text-muted-foreground flex items-center gap-2 text-sm">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <span>Otimizando e enviando imagem...</span>
+                        </div>
+                      )}
+                    </div>
+                  </FormControl>
+                  {file && (
+                    <div className="relative mt-2 aspect-square h-40 overflow-hidden rounded-md">
+                      <Image
+                        src={URL.createObjectURL(file)}
+                        alt="Imagem do médico"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
+                  {!file && field.value && (
+                    <div className="relative mt-2 aspect-square h-40 overflow-hidden rounded-md">
+                      <Image
+                        src={field.value}
+                        alt="Imagem do médico"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}

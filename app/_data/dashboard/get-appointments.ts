@@ -1,6 +1,7 @@
 import "server-only";
 
-import { count } from "drizzle-orm";
+import dayjs from "dayjs";
+import { and, count, eq, gte, lte } from "drizzle-orm";
 import { headers } from "next/headers";
 
 import { db } from "@/db";
@@ -27,6 +28,16 @@ export const getAppointments = async ({
   }
   const appointments = await db
     .select({ count: count() })
-    .from(appointmentsTable);
+    .from(appointmentsTable)
+    .where(
+      and(
+        eq(appointmentsTable.clinicId, session.user.clinicId),
+        gte(
+          appointmentsTable.createdAt,
+          from ?? dayjs().startOf("day").toDate(),
+        ),
+        lte(appointmentsTable.createdAt, to ?? dayjs().endOf("day").toDate()),
+      ),
+    );
   return appointments[0].count ?? 0;
 };

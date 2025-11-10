@@ -46,7 +46,10 @@ const DoctorCard = ({ doctor }: DoctorCardProps) => {
     <Card className="px-6 py-5">
       <CardHeader className="border-b-muted-foreground/20 flex items-center gap-3 border-b px-0 pb-6">
         <Avatar className="size-18">
-          <AvatarImage src={doctor.imageUrl ?? undefined} />
+          <AvatarImage
+            src={doctor.imageUrl ?? undefined}
+            className="aspect-square size-full object-cover"
+          />
           <AvatarFallback>{doctorInitial}</AvatarFallback>
         </Avatar>
         <div className="space-y-1.5">

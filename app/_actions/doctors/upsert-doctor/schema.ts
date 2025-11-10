@@ -6,6 +6,7 @@ export const UpsertDoctorSchema = z
     clinicId: z.uuid().optional(),
     name: z.string().trim().min(1, { message: "Nome é obrigatório" }),
     email: z.email({ message: "Email inválido" }),
+    image: z.string().optional(),
     speciality: z
       .string()
       .trim()
