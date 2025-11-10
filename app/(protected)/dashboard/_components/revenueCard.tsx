@@ -15,19 +15,19 @@ import {
 
 interface RevenueCardProps {
   searchParams: {
-    from?: string;
-    to?: string;
+    from: string;
+    to: string;
   };
 }
 
 export const RevenueCard = async ({ searchParams }: RevenueCardProps) => {
   const { from, to } = searchParams;
   const revenueInCents = await getRevenue({
-    from: from ? dayjs(from).toDate() : undefined,
-    to: to ? dayjs(to).toDate() : undefined,
+    from: dayjs(from).toDate(),
+    to: dayjs(to).toDate(),
   });
 
-  const formattedRevenue = formatCurrencyInCents(revenueInCents);
+  const formattedRevenue = formatCurrencyInCents(Number(revenueInCents));
 
   return (
     <StatsCard>

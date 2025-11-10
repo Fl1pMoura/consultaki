@@ -1,7 +1,7 @@
 import "server-only";
 
 import dayjs from "dayjs";
-import { and, eq, gte, lte } from "drizzle-orm";
+import { and, eq, gte, lte, sum } from "drizzle-orm";
 import { headers } from "next/headers";
 
 import { db } from "@/db";
@@ -23,21 +23,27 @@ export const getRevenue = async ({ from, to }: GetRevenueParams = {}) => {
   if (!session.user.clinicId) {
     throw new Error("Clínica não encontrada");
   }
-  const revenue = await db.query.appointmentsTable.findMany({
-    where: and(
-      eq(appointmentsTable.clinicId, session.user.clinicId),
-      gte(
-        appointmentsTable.appointmentDate,
-        from ?? dayjs().startOf("day").toDate(),
+  const revenue = await db
+    .select({ sum: sum(appointmentsTable.appointmentPriceInCents) })
+    .from(appointmentsTable)
+    .where(
+      and(
+        and(
+          eq(appointmentsTable.clinicId, session.user.clinicId),
+          gte(
+            appointmentsTable.appointmentDate,
+            from ?? dayjs().startOf("day").toDate(),
+          ),
+          lte(
+            appointmentsTable.appointmentDate,
+            to ?? dayjs().endOf("day").toDate(),
+          ),
+        ),
+        lte(
+          appointmentsTable.appointmentDate,
+          to ?? dayjs().endOf("day").toDate(),
+        ),
       ),
-      lte(
-        appointmentsTable.appointmentDate,
-        to ?? dayjs().endOf("day").toDate(),
-      ),
-    ),
-  });
-  return revenue.reduce(
-    (acc, curr) => acc + (curr.appointmentPriceInCents ?? 0),
-    0,
-  );
+    );
+  return revenue[0].sum ?? 0;
 };
