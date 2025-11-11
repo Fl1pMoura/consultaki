@@ -80,9 +80,12 @@ export const getDoctorAvailability = actionClient
         .set("minute", Number(timeSlot.split(":")[1]))
         .set("second", 0);
       return (
+        // verificar se a data é maior que a data de início do médico e menor que a data de término do médico
         (date.isAfter(doctorAvailableFrom) ||
           date.isSame(doctorAvailableFrom)) &&
-        (date.isBefore(doctorAvailableTo) || date.isSame(doctorAvailableTo))
+        (date.isBefore(doctorAvailableTo) || date.isSame(doctorAvailableTo)) &&
+        // verificar se não é uma data passada
+        date.isAfter(dayjs().utc())
       );
     });
     return availableTimeSlots.map((timeSlot) => {

@@ -82,7 +82,10 @@ const appointmentsSchema = z.object({
 interface AppointmentsFormProps {
   isOpen: boolean;
   onSuccess?: () => void;
-  appointment?: typeof appointmentsTable.$inferSelect;
+  appointment?: typeof appointmentsTable.$inferSelect & {
+    patient?: typeof patientsTable.$inferSelect;
+    doctor?: typeof doctorsTable.$inferSelect;
+  };
   patients: (typeof patientsTable.$inferSelect)[];
   doctors: (typeof doctorsTable.$inferSelect)[];
 }
@@ -364,18 +367,16 @@ const AppointmentsForm = ({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {availability?.data
-                          ?.filter((timeSlot) => timeSlot.available)
-                          .map((timeSlot) => (
-                            <SelectItem
-                              key={timeSlot.value}
-                              disabled={!timeSlot.available}
-                              value={timeSlot.value}
-                            >
-                              {timeSlot.value}{" "}
-                              {!timeSlot.available && "(Indisponível)"}
-                            </SelectItem>
-                          ))}
+                        {availability?.data?.map((timeSlot) => (
+                          <SelectItem
+                            key={timeSlot.value}
+                            value={timeSlot.value}
+                            disabled={!timeSlot.available}
+                          >
+                            {timeSlot.value}
+                            {!timeSlot.available && "(Indisponível)"}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />

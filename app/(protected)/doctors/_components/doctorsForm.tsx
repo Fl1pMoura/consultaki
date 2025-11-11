@@ -244,7 +244,7 @@ const DoctorsForm = ({ isOpen, onSuccess, doctor }: DoctorsFormProps) => {
                               const imageUrl = await uploadToS3Presigned(
                                 selectedFile,
                                 {
-                                  folder: "uploads",
+                                  folder: "uploads/doctors",
                                   maxWidth: 300,
                                   maxHeight: 300,
                                   quality: 1,

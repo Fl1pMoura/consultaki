@@ -1,8 +1,11 @@
 "use client";
 
+import { useQueries } from "@tanstack/react-query";
 import { EditIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 
+import { getDoctors } from "@/app/_data/doctors/get-doctors";
+import { getPatients } from "@/app/_data/patients/get-patients";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import {
@@ -14,17 +17,36 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { patientsTable } from "@/db/schema";
+import { appointmentsTable, doctorsTable, patientsTable } from "@/db/schema";
 
-import DeletePatientButton from "./deletePatientButton";
-import PatientsForm from "./patientForm";
+import AppointmentsForm from "./appointmentsForm";
+import DeleteAppointmentButton from "./deleteAppointmentButton";
 
 const TableColumnsActions = ({
-  patient,
+  appointment,
 }: {
-  patient: typeof patientsTable.$inferSelect;
+  appointment: typeof appointmentsTable.$inferSelect & {
+    patient: typeof patientsTable.$inferSelect;
+    doctor: typeof doctorsTable.$inferSelect;
+  };
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+
+  const { "0": doctorsData, "1": patientsData } = useQueries({
+    queries: [
+      {
+        queryKey: ["get-doctors"],
+        queryFn: () => getDoctors(),
+      },
+      {
+        queryKey: ["get-patients"],
+        queryFn: () => getPatients(),
+      },
+    ],
+  });
+  console.log(doctorsData);
+  console.log(patientsData);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -36,7 +58,7 @@ const TableColumnsActions = ({
       <DropdownMenuContent>
         <DropdownMenuGroup>
           <DropdownMenuLabel className="text-foreground text-xs font-semibold">
-            {patient.name}
+            {appointment.patient.name}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -46,16 +68,18 @@ const TableColumnsActions = ({
                 Editar
               </DropdownMenuItem>
             </DialogTrigger>
-            <PatientsForm
+            <AppointmentsForm
               isOpen={isOpen}
               onSuccess={() => {
                 setIsOpen(false);
               }}
-              patient={patient}
+              appointment={appointment}
+              patients={patientsData.data ?? []}
+              doctors={doctorsData.data ?? []}
             />
           </Dialog>
-          <DeletePatientButton
-            patientId={patient.id}
+          <DeleteAppointmentButton
+            appointmentId={appointment.id}
             trigger={
               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                 <Trash2Icon className="h-4 w-4" />

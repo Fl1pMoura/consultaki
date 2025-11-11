@@ -1,4 +1,4 @@
-import "server-only";
+"use server";
 
 import { asc, eq } from "drizzle-orm";
 import { headers } from "next/headers";
@@ -7,11 +7,7 @@ import { db } from "@/db";
 import { patientsTable } from "@/db/schema";
 import { auth } from "@/lib/auth";
 
-export const getPatients = async ({ from, to }: GetPatientsParams = {}) => {
-  interface GetPatientsParams {
-    from?: Date;
-    to?: Date;
-  }
+export const getPatients = async () => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });

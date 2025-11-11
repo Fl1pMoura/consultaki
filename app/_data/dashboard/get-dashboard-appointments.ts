@@ -8,15 +8,15 @@ import { db } from "@/db";
 import { appointmentsTable } from "@/db/schema";
 import { auth } from "@/lib/auth";
 
-interface GetAppointmentsParams {
+interface GetDashboardAppointmentsParams {
   from?: Date;
   to?: Date;
 }
 
-export const getAppointments = async ({
+export const getDashboardAppointments = async ({
   from,
   to,
-}: GetAppointmentsParams = {}) => {
+}: GetDashboardAppointmentsParams = {}) => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });

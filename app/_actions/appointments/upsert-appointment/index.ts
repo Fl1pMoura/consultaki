@@ -52,7 +52,7 @@ export const upsertAppointment = actionClient
         time.value === dayjs(data.appointmentDate).format("HH:mm:ss") &&
         time.available,
     );
-    if (!isTimeAvailable) {
+    if (!isTimeAvailable && !data.id) {
       throw new Error("Horário não disponível para o médico");
     }
 

@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { CalendarDaysIcon } from "lucide-react";
 
-import { getAppointments } from "@/app/_data/dashboard/get-appointments";
+import { getDashboardAppointments } from "@/app/_data/dashboard/get-dashboard-appointments";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import {
@@ -23,7 +23,7 @@ export const AppointmentsCard = async ({
   searchParams,
 }: AppointmentsCardProps) => {
   const { from, to } = searchParams;
-  const appointments = await getAppointments({
+  const appointments = await getDashboardAppointments({
     from: dayjs(from).toDate(),
     to: dayjs(to).toDate(),
   });
