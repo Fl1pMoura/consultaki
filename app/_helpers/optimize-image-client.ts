@@ -20,9 +20,9 @@ export async function optimizeImageClient(
   options: OptimizeImageOptions = {},
 ): Promise<File> {
   const {
-    maxWidth = 100,
-    maxHeight = 100,
-    quality = 0.9,
+    maxWidth = 200,
+    maxHeight = 200,
+    quality = 1,
     fileType = "image/jpeg",
   } = options;
 
@@ -43,4 +43,3 @@ export async function optimizeImageClient(
     return file;
   }
 }
-

@@ -245,9 +245,9 @@ const DoctorsForm = ({ isOpen, onSuccess, doctor }: DoctorsFormProps) => {
                                 selectedFile,
                                 {
                                   folder: "uploads",
-                                  maxWidth: 100,
-                                  maxHeight: 100,
-                                  quality: 0.9,
+                                  maxWidth: 300,
+                                  maxHeight: 300,
+                                  quality: 1,
                                   fileType: "image/jpeg",
                                   onProgress: (progress) => {
                                     // Você pode usar isso para mostrar progresso se necessário
