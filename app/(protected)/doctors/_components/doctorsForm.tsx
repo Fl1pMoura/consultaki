@@ -14,6 +14,7 @@ dayjs.extend(utc);
 import Image from "next/image";
 
 import { upsertDoctor } from "@/app/_actions/doctors/upsert-doctor";
+import { uploadToS3Presigned } from "@/app/_helpers/upload-to-s3-presigned";
 import { Button } from "@/components/ui/button";
 import {
   DialogContent,
@@ -239,30 +240,25 @@ const DoctorsForm = ({ isOpen, onSuccess, doctor }: DoctorsFormProps) => {
                           if (selectedFile) {
                             setIsUploadingImage(true);
                             try {
-                              // Faz upload via API route
-                              const formData = new FormData();
-                              formData.append("image", selectedFile);
-                              formData.append("folder", "doctors");
-                              formData.append("maxWidth", "100");
-                              formData.append("quality", "100");
-
-                              const response = await fetch(
-                                "/api/upload-image",
+                              // Faz upload direto para S3 usando presigned URL
+                              const imageUrl = await uploadToS3Presigned(
+                                selectedFile,
                                 {
-                                  method: "POST",
-                                  body: formData,
+                                  folder: "uploads",
+                                  maxWidth: 100,
+                                  maxHeight: 100,
+                                  quality: 0.9,
+                                  fileType: "image/jpeg",
+                                  onProgress: (progress) => {
+                                    // Você pode usar isso para mostrar progresso se necessário
+                                    console.log(
+                                      `Upload progress: ${progress}%`,
+                                    );
+                                  },
                                 },
                               );
 
-                              if (!response.ok) {
-                                const error = await response.json();
-                                throw new Error(
-                                  error.error || "Erro ao fazer upload",
-                                );
-                              }
-
-                              const { url } = await response.json();
-                              field.onChange(url);
+                              field.onChange(imageUrl);
                               toast.success("Imagem enviada com sucesso");
                             } catch (error) {
                               console.error("Erro ao fazer upload:", error);
