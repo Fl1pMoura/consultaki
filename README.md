@@ -273,7 +273,7 @@ Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalh
 
 **Felipe Moura**
 
-- [GitHub](https://github.com/Fl1pMoura/consultaki)
+- [GitHub](https://github.com/Fl1pMoura/)
 - [LinkedIn](https://www.linkedin.com/in/felipe-moura-384a95270/)
 
 ---
