@@ -273,8 +273,8 @@ Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalh
 
 **Felipe Moura**
 
-- GitHub: [@seu-usuario](https://github.com/seu-usuario)
-- LinkedIn: [Seu Perfil](https://linkedin.com/in/seu-perfil)
+- [GitHub](https://github.com/Fl1pMoura/consultaki)
+- [LinkedIn](https://www.linkedin.com/in/felipe-moura-384a95270/)
 
 ---
 
@@ -291,7 +291,5 @@ Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalh
 <div align="center">
 
 **Desenvolvido com ❤️ usando Next.js e TypeScript**
-
-⭐ Se este projeto foi útil para você, considere dar uma estrela!
 
 </div>
