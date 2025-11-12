@@ -5,10 +5,7 @@ import dayjs from "dayjs";
 import { CheckIcon, ClockIcon, XIcon } from "lucide-react";
 
 import type { Appointment } from "@/app/_data/appointments";
-import { formatCurrencyInCents } from "@/app/_helpers/formatCurrencyInCents";
 import { Badge } from "@/components/ui/badge";
-
-import TableColumnsActions from "./tableColumnsActions";
 
 export const columns: ColumnDef<Appointment>[] = [
   {
@@ -36,24 +33,7 @@ export const columns: ColumnDef<Appointment>[] = [
       return <div>{row.original.doctor?.name}</div>;
     },
   },
-  {
-    id: "speciality",
-    header: "Especialidade",
-    cell: ({ row }) => {
-      return (
-        <div className="capitalize">{row.original.doctor?.speciality}</div>
-      );
-    },
-  },
-  {
-    id: "price",
-    header: "Preço",
-    cell: ({ row }) => {
-      return (
-        <div>{formatCurrencyInCents(row.original.appointmentPriceInCents)}</div>
-      );
-    },
-  },
+
   {
     id: "status",
     header: "Status",
@@ -73,13 +53,6 @@ export const columns: ColumnDef<Appointment>[] = [
           {row.original.status}
         </Badge>
       );
-    },
-  },
-  {
-    id: "actions",
-    header: "Ações",
-    cell: ({ row }) => {
-      return <TableColumnsActions appointment={row.original} />;
     },
   },
 ];

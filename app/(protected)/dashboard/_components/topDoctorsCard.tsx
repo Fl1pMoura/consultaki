@@ -22,7 +22,7 @@ export const TopDoctorsCard = async ({ searchParams }: TopDoctorsCardProps) => {
     to: dayjs(to).toDate(),
   });
   return (
-    <StatsCard>
+    <StatsCard className="gap-0">
       <StatsCardHeader className="gap-3">
         <StethoscopeIcon size={16} className="text-accent-foreground" />
         <StatsCardDescription className="text-foreground">
@@ -67,14 +67,14 @@ export const TopDoctorsCard = async ({ searchParams }: TopDoctorsCardProps) => {
 
 export function SkeletonTopDoctorsCard() {
   return (
-    <StatsCard>
+    <StatsCard className="gap-0">
       <StatsCardHeader className="gap-3">
         <Skeleton className="h-4 w-4 rounded-full" />
         <Skeleton className="h-5 w-24 rounded-xl" />
         <Skeleton className="ml-auto h-4 w-16 rounded-xl" />
       </StatsCardHeader>
       <ul className="border-muted-foreground/20 mt-6 space-y-6 border-t pt-6">
-        {Array.from({ length: 5 }).map((_, index) => (
+        {Array.from({ length: 3 }).map((_, index) => (
           <li key={index} className="flex items-center gap-3">
             <Skeleton className="size-14 rounded-full" />
             <div>

@@ -19,8 +19,16 @@ import {
   AppointmentsCard,
   SkeletonAppointmentsCard,
 } from "./_components/appointmentsCard";
+import {
+  AppointmentsChartsCard,
+  SkeletonAppointmentsChartsCard,
+} from "./_components/appointmentsChartsCard";
 import { DoctorsCard, SkeletonDoctorsCard } from "./_components/doctorsCard";
 import { PatientsCard, SkeletonPatientsCard } from "./_components/patientsCard";
+import {
+  RangeAppointmentsCard,
+  SkeletonRangeAppointmentsCard,
+} from "./_components/rangeAppointmentsCard";
 import { RangeDatePicker } from "./_components/rangeDatePicker";
 import { RevenueCard, SkeletonCard } from "./_components/revenueCard";
 import {
@@ -96,16 +104,16 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
           </Suspense>
         </div>
         <div className="grid grid-cols-[2.5fr_1fr] gap-4">
-          <Suspense fallback={<SkeletonTopDoctorsCard />}>
-            <TopDoctorsCard searchParams={{ from, to }} />
+          <Suspense fallback={<SkeletonAppointmentsChartsCard />}>
+            <AppointmentsChartsCard searchParams={{ from, to }} />
           </Suspense>
           <Suspense fallback={<SkeletonTopDoctorsCard />}>
             <TopDoctorsCard searchParams={{ from, to }} />
           </Suspense>
         </div>
         <div className="grid grid-cols-[2.5fr_1fr] gap-4">
-          <Suspense fallback={<SkeletonSpecialitiesCard />}>
-            <SpecialitiesCard searchParams={{ from, to }} />
+          <Suspense fallback={<SkeletonRangeAppointmentsCard />}>
+            <RangeAppointmentsCard searchParams={{ from, to }} />
           </Suspense>
           <Suspense fallback={<SkeletonSpecialitiesCard />}>
             <SpecialitiesCard searchParams={{ from, to }} />

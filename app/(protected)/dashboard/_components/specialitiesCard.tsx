@@ -24,7 +24,7 @@ export const SpecialitiesCard = async ({
     to: dayjs(to).toDate(),
   });
   return (
-    <StatsCard>
+    <StatsCard className="gap-0">
       <StatsCardHeader className="gap-3">
         <HospitalIcon size={16} className="text-accent-foreground" />
         <StatsCardDescription className="text-foreground">
@@ -80,14 +80,14 @@ export const SpecialitiesCard = async ({
 
 export function SkeletonSpecialitiesCard() {
   return (
-    <StatsCard>
+    <StatsCard className="gap-0">
       <StatsCardHeader className="gap-3">
         <Skeleton className="h-4 w-4 rounded-full" />
         <Skeleton className="h-5 w-24 rounded-xl" />
         <Skeleton className="ml-auto h-4 w-16 rounded-xl" />
       </StatsCardHeader>
       <ul className="border-muted-foreground/20 mt-6 space-y-6 border-t pt-6">
-        {Array.from({ length: 2 }).map((_, index) => (
+        {Array.from({ length: 3 }).map((_, index) => (
           <li key={index} className="flex w-full items-center gap-3">
             <span className="bg-accent flex size-10.5 min-w-10.5 items-center justify-center rounded-full">
               <Skeleton className="size-10.5 min-w-10.5 rounded-full" />

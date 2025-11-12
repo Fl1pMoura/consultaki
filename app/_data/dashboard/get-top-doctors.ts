@@ -71,7 +71,7 @@ export const getTopDoctors = async ({ from, to }: GetTopDoctorsParams = {}) => {
     .where(eq(doctorsTable.clinicId, session.user.clinicId))
     .groupBy(doctorsTable.id)
     .orderBy(desc(sql<number>`count(${appointmentsTable.id})`))
-    .limit(5);
+    .limit(3);
 
   return topDoctorsData;
 };

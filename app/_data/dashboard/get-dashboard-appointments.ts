@@ -26,8 +26,12 @@ export const getDashboardAppointments = async ({
   if (!session.user.clinicId) {
     throw new Error("Clínica não encontrada");
   }
+
   const appointments = await db
-    .select({ count: count() })
+    .select({
+      count: count(),
+      appointmentDate: appointmentsTable.appointmentDate,
+    })
     .from(appointmentsTable)
     .where(
       and(
@@ -38,6 +42,7 @@ export const getDashboardAppointments = async ({
         ),
         lte(appointmentsTable.createdAt, to ?? dayjs().endOf("day").toDate()),
       ),
-    );
-  return appointments[0].count ?? 0;
+    )
+    .groupBy(appointmentsTable.appointmentDate);
+  return appointments;
 };

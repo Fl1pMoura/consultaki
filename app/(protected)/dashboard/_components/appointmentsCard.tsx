@@ -35,7 +35,7 @@ export const AppointmentsCard = async ({
         </StatsCardIcon>
         <StatsCardDescription>Agendamentos</StatsCardDescription>
       </StatsCardHeader>
-      <StatsCardTitle>{appointments}</StatsCardTitle>
+      <StatsCardTitle>{appointments.length}</StatsCardTitle>
     </StatsCard>
   );
 };

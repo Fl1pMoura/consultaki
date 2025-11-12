@@ -4,6 +4,7 @@ import { useQueries } from "@tanstack/react-query";
 import { EditIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 
+import type { Appointment } from "@/app/_data/appointments";
 import { getDoctors } from "@/app/_data/doctors/get-doctors";
 import { getPatients } from "@/app/_data/patients/get-patients";
 import { Button } from "@/components/ui/button";
@@ -17,19 +18,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { appointmentsTable, doctorsTable, patientsTable } from "@/db/schema";
 
 import AppointmentsForm from "./appointmentsForm";
 import DeleteAppointmentButton from "./deleteAppointmentButton";
 
-const TableColumnsActions = ({
-  appointment,
-}: {
-  appointment: typeof appointmentsTable.$inferSelect & {
-    patient: typeof patientsTable.$inferSelect;
-    doctor: typeof doctorsTable.$inferSelect;
-  };
-}) => {
+const TableColumnsActions = ({ appointment }: { appointment: Appointment }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const { "0": doctorsData, "1": patientsData } = useQueries({
@@ -44,8 +37,6 @@ const TableColumnsActions = ({
       },
     ],
   });
-  console.log(doctorsData);
-  console.log(patientsData);
 
   return (
     <DropdownMenu>
@@ -58,7 +49,7 @@ const TableColumnsActions = ({
       <DropdownMenuContent>
         <DropdownMenuGroup>
           <DropdownMenuLabel className="text-foreground text-xs font-semibold">
-            {appointment.patient.name}
+            {appointment.patient?.name ?? "Sem paciente"}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <Dialog open={isOpen} onOpenChange={setIsOpen}>

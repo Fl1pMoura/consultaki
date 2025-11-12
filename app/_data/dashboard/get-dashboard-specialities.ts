@@ -1,11 +1,11 @@
 import "server-only";
 
 import dayjs from "dayjs";
-import { and, eq, gte, lte } from "drizzle-orm";
+import { and, count, desc, eq, gte, lte } from "drizzle-orm";
 import { headers } from "next/headers";
 
 import { db } from "@/db";
-import { doctorsTable } from "@/db/schema";
+import { appointmentsTable, doctorsTable } from "@/db/schema";
 import { auth } from "@/lib/auth";
 
 interface GetDashboardSpecialitiesParams {
@@ -26,27 +26,34 @@ export const getDashboardSpecialities = async ({
   if (!session.user.clinicId) {
     throw new Error("Clínica não encontrada");
   }
-  const specialities = await db.query.doctorsTable.findMany({
-    where: and(
-      eq(doctorsTable.clinicId, session.user.clinicId),
-      gte(doctorsTable.createdAt, from ?? dayjs().startOf("day").toDate()),
-      lte(doctorsTable.createdAt, to ?? dayjs().endOf("day").toDate()),
-    ),
-    with: {
-      appointments: true,
-    },
-    columns: {
-      speciality: true,
-    },
-  });
+  const specialities = await db
+    .select({
+      speciality: doctorsTable.speciality,
+      appointmentsCount: count(appointmentsTable.id),
+    })
+    .from(doctorsTable)
+    .leftJoin(
+      appointmentsTable,
+      eq(doctorsTable.id, appointmentsTable.doctorId),
+    )
+    .where(
+      and(
+        eq(doctorsTable.clinicId, session.user.clinicId),
+        gte(doctorsTable.createdAt, from ?? dayjs().startOf("day").toDate()),
+        lte(doctorsTable.createdAt, to ?? dayjs().endOf("day").toDate()),
+      ),
+    )
+    .groupBy(doctorsTable.speciality)
+    .orderBy(desc(count(appointmentsTable.id)))
+    .limit(3);
   await new Promise((resolve) => setTimeout(resolve, 5000));
   return {
     specialities: specialities.map((doctor) => ({
       name: doctor.speciality,
-      appointmentsCount: doctor.appointments.length,
+      appointmentsCount: doctor.appointmentsCount,
     })),
     totalAppointments: specialities.reduce(
-      (acc, doctor) => acc + doctor.appointments.length,
+      (acc, doctor) => acc + doctor.appointmentsCount,
       0,
     ),
   };

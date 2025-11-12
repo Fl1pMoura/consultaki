@@ -16,6 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { upsertAppointment } from "@/app/_actions/appointments/upsert-appointment";
 import { getDoctorAvailability } from "@/app/_actions/doctors/get-doctor-availability";
+import type { Appointment } from "@/app/_data/appointments";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -47,7 +48,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  appointmentsTable,
   appointmentStatusEnum,
   doctorsTable,
   patientsTable,
@@ -82,10 +82,7 @@ const appointmentsSchema = z.object({
 interface AppointmentsFormProps {
   isOpen: boolean;
   onSuccess?: () => void;
-  appointment?: typeof appointmentsTable.$inferSelect & {
-    patient?: typeof patientsTable.$inferSelect;
-    doctor?: typeof doctorsTable.$inferSelect;
-  };
+  appointment?: Appointment;
   patients: (typeof patientsTable.$inferSelect)[];
   doctors: (typeof doctorsTable.$inferSelect)[];
 }
@@ -151,7 +148,7 @@ const AppointmentsForm = ({
     enabled: !!selectedDoctorId && !!selectedDate,
   });
 
-  console.log(availability);
+  // console.log(availability);
 
   useEffect(() => {
     if (selectedDoctorId) {
@@ -186,8 +183,8 @@ const AppointmentsForm = ({
     },
   });
   function onSubmit(values: z.infer<typeof appointmentsSchema>) {
-    console.log("Form values:", values);
-    console.log("Form errors:", form.formState.errors);
+    // console.log("Form values:", values);
+    // console.log("Form errors:", form.formState.errors);
 
     // Combinar data e hora
     const [hours, minutes, seconds] = values.time.split(":").map(Number);

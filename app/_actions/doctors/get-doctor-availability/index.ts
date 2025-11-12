@@ -60,9 +60,7 @@ export const getDoctorAvailability = actionClient
       .map((appointment) => {
         return dayjs(appointment.appointmentDate).utc().format("HH:mm:ss");
       });
-    console.log("appointmentsOnSelectedDate", appointmentsOnSelectedDate);
     const timeSlots = generateTimeSlots(30);
-    console.log("timeSlots", timeSlots);
     const doctorAvailableFrom = dayjs(data.selectedDate)
       .utc()
       .set("hour", Number(doctor.availableFromHour?.split(":")[0]))

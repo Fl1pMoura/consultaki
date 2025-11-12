@@ -16,7 +16,7 @@ import AddAppointmentButton from "./_components/addAppointmentButton";
 import { columns } from "./_components/table-columns";
 
 const AppointmentsPage = async () => {
-  const appointments = await getAppointments();
+  const appointments = await getAppointments({});
   // console.log(appointments);
   const patients = await getPatients();
   const doctors = await getDoctors();

@@ -19,11 +19,13 @@ import {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  noResultsText?: string;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  noResultsText,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -34,12 +36,15 @@ export function DataTable<TData, TValue>({
   return (
     <div className="overflow-hidden rounded-md border">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-accent">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 return (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    className="text-secondary-foreground/80"
+                    key={header.id}
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -69,7 +74,7 @@ export function DataTable<TData, TValue>({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
+                {noResultsText || "Nenhum resultado encontrado."}
               </TableCell>
             </TableRow>
           )}

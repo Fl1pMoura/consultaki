@@ -58,6 +58,12 @@ export const StatsCardTitle = ({
   );
 };
 
-export const StatsCard = ({ children }: { children: React.ReactNode }) => {
-  return <Card className="gap-2 px-5 py-5">{children}</Card>;
+export const StatsCard = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => {
+  return <Card className={cn("gap-2 px-5 py-5", className)}>{children}</Card>;
 };
