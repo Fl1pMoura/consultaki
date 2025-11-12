@@ -1,4 +1,6 @@
 import { getDoctors } from "@/app/_data/doctors/get-doctors";
+import { requireAuth } from "@/app/_helpers/require-auth";
+import { requireClinic } from "@/app/_helpers/require-clinic";
 
 import {
   PageContainer,
@@ -13,6 +15,8 @@ import AddDoctorButton from "./_components/addDoctorButton";
 import DoctorCard from "./_components/doctorCard";
 
 const DoctorsPage = async () => {
+  const session = await requireAuth();
+  await requireClinic(session.user.id);
   const doctors = await getDoctors();
   return (
     <PageContainer>

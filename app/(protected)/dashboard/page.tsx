@@ -1,10 +1,9 @@
 import dayjs from "dayjs";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
-import { getClinics } from "@/app/_data/clinics/get-clinics";
-import { auth } from "@/lib/auth";
+import { requireAuth } from "@/app/_helpers/require-auth";
+import { requireClinic } from "@/app/_helpers/require-clinic";
 
 import {
   PageContainer,
@@ -48,17 +47,8 @@ interface DashboardPageProps {
 }
 
 const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  if (!session?.user) {
-    redirect("/auth");
-  }
-  const clinics = await getClinics(session?.user?.id);
-
-  if (!clinics.length) {
-    redirect("/clinics");
-  }
+  const session = await requireAuth();
+  await requireClinic(session.user.id);
   const { from, to } = await searchParams;
   if (!from || !to) {
     redirect(

@@ -1,4 +1,6 @@
 import { getPatients } from "@/app/_data/patients/get-patients";
+import { requireAuth } from "@/app/_helpers/require-auth";
+import { requireClinic } from "@/app/_helpers/require-clinic";
 import { DataTable } from "@/components/ui/data-table";
 
 import {
@@ -14,6 +16,8 @@ import AddPatientButton from "./_components/addPatientButton";
 import { columns } from "./_components/table-columns";
 
 const PatientsPage = async () => {
+  const session = await requireAuth();
+  await requireClinic(session.user.id);
   const patients = await getPatients();
   return (
     <PageContainer>

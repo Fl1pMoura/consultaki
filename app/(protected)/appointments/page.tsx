@@ -1,6 +1,8 @@
 import { getAppointments } from "@/app/_data/appointments";
 import { getDoctors } from "@/app/_data/doctors/get-doctors";
 import { getPatients } from "@/app/_data/patients/get-patients";
+import { requireAuth } from "@/app/_helpers/require-auth";
+import { requireClinic } from "@/app/_helpers/require-clinic";
 import { DataTable } from "@/components/ui/data-table";
 
 import {
@@ -16,6 +18,8 @@ import AddAppointmentButton from "./_components/addAppointmentButton";
 import { columns } from "./_components/table-columns";
 
 const AppointmentsPage = async () => {
+  const session = await requireAuth();
+  await requireClinic(session.user.id);
   const appointments = await getAppointments({});
   // console.log(appointments);
   const patients = await getPatients();
